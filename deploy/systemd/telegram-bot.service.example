@@ -1,0 +1,19 @@
+[Unit]
+Description=Telegram Bot Webhook
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/telegram-bot
+EnvironmentFile=/opt/telegram-bot/.env
+ExecStart=/usr/bin/node /opt/telegram-bot/server.js
+Restart=always
+RestartSec=3
+
+# Security hardening (optional)
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+

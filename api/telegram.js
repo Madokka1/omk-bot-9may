@@ -80,11 +80,9 @@ function getPublicBaseUrl(req) {
   const publicBase = (process.env.PUBLIC_BASE_URL || "").trim().replace(/\/+$/, "");
   if (publicBase) return publicBase;
 
-  const vercelUrl = (process.env.VERCEL_URL || "").trim();
-  if (vercelUrl) return `https://${vercelUrl}`;
-
-  const host = req?.headers?.host;
-  if (host) return `https://${host}`;
+  const host = req?.headers?.["x-forwarded-host"] || req?.headers?.host;
+  const proto = (req?.headers?.["x-forwarded-proto"] || "https").toString().split(",")[0].trim() || "https";
+  if (host) return `${proto}://${host}`;
 
   return "";
 }
@@ -378,7 +376,7 @@ function signProxyUrl({ req, fileId }) {
   const sig = crypto.createHmac("sha256", secret).update(`${fileId}.${exp}`).digest("base64url");
 
   const base = getPublicBaseUrl(req);
-  if (!base) throw new Error("PUBLIC_BASE_URL/VERCEL_URL is not set");
+  if (!base) throw new Error("PUBLIC_BASE_URL is not set");
 
   // Some KIE models validate file type by URL extension, so we expose a `.jpg` route.
   return `${base}/api/tg-proxy.jpg?file_id=${encodeURIComponent(fileId)}&exp=${exp}&sig=${encodeURIComponent(sig)}`;
@@ -395,7 +393,7 @@ function signKieCallbackUrl({ req, chatId, userId, variantText }) {
     .digest("base64url");
 
   const base = getPublicBaseUrl(req);
-  if (!base) throw new Error("PUBLIC_BASE_URL/VERCEL_URL is not set");
+  if (!base) throw new Error("PUBLIC_BASE_URL is not set");
 
   const url =
     `${base}/api/kie-callback` +

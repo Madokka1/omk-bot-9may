@@ -1,0 +1,23 @@
+server {
+  listen 80;
+  server_name example.com;
+
+  # Если подключишь SSL через certbot, он сам добавит нужные блоки для 443.
+  # На время настройки можно оставить HTTP, но Telegram webhook лучше держать на HTTPS.
+
+  location / {
+    return 200 "ok\n";
+    add_header Content-Type text/plain;
+  }
+
+  location /api/ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+
