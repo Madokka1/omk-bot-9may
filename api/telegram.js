@@ -99,8 +99,8 @@ function mainMenuReplyMarkup() {
 function generationVariantsReplyMarkup() {
   return {
     keyboard: [
-      [{ text: TEXT_VARIANTS.NO_TEXT }, { text: TEXT_VARIANTS.MAY_DAY }],
-      [{ text: TEXT_VARIANTS.LABOR }, { text: TEXT_VARIANTS.SPRING }],
+      [{ text: "Без текста" }, { text: "С Первомаем!" }],
+      [{ text: "Работа работой, май — по расписанию" }, { text: "Товарищи-металлурги, с праздником!" }],
       [{ text: "Назад" }]
     ],
     resize_keyboard: true,
@@ -117,20 +117,15 @@ function backOnlyReplyMarkup() {
 }
 
 function isGenerationVariant(text) {
-  const t = String(text || "").trim();
-  return (
-    t === TEXT_VARIANTS.NO_TEXT ||
-    t === TEXT_VARIANTS.MAY_DAY ||
-    t === TEXT_VARIANTS.LABOR ||
-    t === TEXT_VARIANTS.SPRING
-  );
+  return Object.values(TEXT_VARIANTS).includes(String(text).trim());
 }
+
 
 const TEXT_VARIANTS = {
   NO_TEXT: "Без текста",
   MAY_DAY: "С Первомаем!",
-  LABOR: "Работа работой, май — по расписанию",
-  SPRING: "Товарищи-металлурги, с праздником!"
+  LABOR:   "Работа работой, май — по расписанию",
+  SPRING:  "Товарищи-металлурги, с праздником!",
 };
 
 const SOVIET_STYLE_BASE =
@@ -165,7 +160,7 @@ const SOVIET_COMMON_BASE =
 function buildMayDayPromptNoText() {
   return (
     SOVIET_COMMON_BASE +
-    "NO TEXT. NO letters. NO typography anywhere in the image. All banners and flags must be blank. "
+    "NO TEXT. NO letters. NO typography anywhere. All banners and flags must be blank. "
   );
 }
 
@@ -184,15 +179,35 @@ function buildMayDayPromptTextVariant(exactText) {
 
 // 3) Для каждой категории — отдельная функция промпта
 function buildMayDayPromptMayDay() {
-  return buildMayDayPromptTextVariant(TEXT_VARIANTS.MAY_DAY);
+  return (
+    SOVIET_COMMON_BASE +
+    "Integrated festive lettering 'С Первомаем!' in classic Soviet poster bold sans-serif font, slightly arched or horizontal, bright yellow or white color with thin red stroke. " +
+    "Slightly enhance composition to resemble a May Day celebratory scene with the text 'С Первомаем!' logically placed. "
+  );
 }
 
 function buildMayDayPromptLabor() {
-  return buildMayDayPromptTextVariant(TEXT_VARIANTS.LABOR);
+  return (
+    "1960s Soviet motivational poster illustration, socialist realism, vibe of labor and spring, clean graphic lines. " +
+    "Combination of industry and spring: subtle factory silhouettes, blooming branches, red banners. " +
+    "Prominent Cyrillic lettering 'Работа работой, май — по расписанию' in a bold, dynamic Soviet 1960s sans-serif font. " +
+    "Preserve original identity and likeness. subjects look inspired and proud. " +
+    "Graphic poster painting style, strong poster reds, industrial greys, sky blue, and fresh spring green. " +
+    "Strictly May Day and labor theme, no modern technology, no English text. " +
+    "Extra style hint: " + (process.env.IMG_STYLE_PROMPT || "") + "."
+  );
 }
 
 function buildMayDayPromptSpring() {
-  return buildMayDayPromptTextVariant(TEXT_VARIANTS.SPRING);
+  return (
+    "1950s Soviet industrial poster aesthetic, socialist realism, monumental and heroic. " +
+    "Powerful metallurgical background: blast furnace silhouettes, glowing molten metal, sparks, combined with May Day red banners. " +
+    "Large, monumental Cyrillic lettering 'Товарищи-металлурги, с праздником!' in a solid blocky Soviet font. " +
+    "Preserve original identity. Subjects should look proud and strong, fitting the heroic metallurgist archetype. " +
+    "Dominant deep reds, molten gold accents, strong industrial blues and greys. " +
+    "Strictly metallurgical and May Day theme, no modern technology, no English text. " +
+    "Extra style hint: " + (process.env.IMG_STYLE_PROMPT || "") + "."
+  );
 }
 
 function isStartCommand(text) {
@@ -392,11 +407,7 @@ function signKieCallbackUrl({ req, chatId, userId, variantText }) {
 }
 
 async function submitKieEditTask({ req, chatId, userId, fileId, variantText }) {
-  let v = String(variantText || "").trim();
-  if (!v) v = TEXT_VARIANTS.MAY_DAY;
-  if (v !== TEXT_VARIANTS.NO_TEXT && v !== TEXT_VARIANTS.MAY_DAY && v !== TEXT_VARIANTS.LABOR && v !== TEXT_VARIANTS.SPRING) {
-    v = TEXT_VARIANTS.MAY_DAY;
-  }
+  const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
 
   const inputUrl = signProxyUrl({ req, fileId });
   const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: v });
