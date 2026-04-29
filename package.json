@@ -14,5 +14,7 @@
     "get-webhook": "node scripts/getWebhookInfo.mjs",
     "delete-webhook": "node scripts/deleteWebhook.mjs"
   },
-  "dependencies": {}
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
 }
