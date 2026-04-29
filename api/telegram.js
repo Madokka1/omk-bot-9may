@@ -126,83 +126,109 @@ function isGenerationVariant(text) {
   );
 }
 
-function buildMayDayPostcardPrompt(variantText) {
-  const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
-  const v = String(variantText || "").trim();
+// function buildMayDayPostcardPrompt(variantText) {
+//   const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
+//   const v = String(variantText || "").trim();
 
-  if (v === "Без текста") {
-    return (
-      "Сгенерируй праздничную открытку к 1 Мая (День труда). " +
-      "Без надписей и без букв вообще. " +
-      "Высокое качество, красивый свет, чистая композиция. " +
-      "Стилистика: " +
-      stylePrompt +
-      "."
-    );
-  }
-
-  return (
-    "Сгенерируй праздничную открытку к 1 Мая (День труда). " +
-    "Добавь на изображение ровно эту надпись (как на открытке), без изменений: " +
-    `"${v}". ` +
-    "Текст должен быть читабельным и аккуратно вписанным в композицию. " +
-    "Высокое качество, красивый свет, чистая композиция. " +
-    "Стилистика: " +
-    stylePrompt +
-    "."
-  );
-}
+//   if (v === "Без текста") {
+//     return (
+//       "Generate a festive May Day (1st of May, International Workers' Day) postcard illustration. " +
+//       "Style: authentic Soviet postcard, USSR 1950s–1970s, socialist realism. " +
+//       "Visual elements: red flags, spring flowers (tulips, lilac), white doves, bright sky, festive crowd, feeling of unity and optimism. " +
+//       "Rendering: semi-realistic Soviet painting style, simplified forms, soft idealization of faces, slightly heroic but natural look. " +
+//       "Color palette: dominant reds, sky blue, warm beige skin tones, fresh spring greens, warm sunlight. " +
+//       "Lighting: bright daylight, soft and optimistic, no dramatic shadows. " +
+//       "NO TEXT. NO letters. NO typography anywhere in the image. " +
+//       "Output format: 16:9 landscape. " +
+//       "Thin uniform border equal on all four sides (top = bottom = left = right). " +
+//       "No watermarks, no logos, no AI signatures. " +
+//       "Style reference: " + stylePrompt + "."
+//     );
+//   }
+  
+//     return (
+//       "Generate a festive May Day (1st of May, International Workers' Day) postcard illustration. " +
+//       "Style: authentic Soviet postcard, USSR 1950s–1970s, socialist realism. " +
+//       "Visual elements: red flags, spring flowers (tulips, lilac), white doves, bright sky, festive crowd, feeling of unity and optimism. " +
+//       "Rendering: semi-realistic Soviet painting style, simplified forms, soft idealization of faces, slightly heroic but natural look. " +
+//       "Color palette: dominant reds, sky blue, warm beige skin tones, fresh spring greens, warm sunlight. " +
+//       "Lighting: bright daylight, soft and optimistic, no dramatic shadows. " +
+    
+//       "TEXT REQUIREMENT — CRITICAL: " +
+//       "Include EXACTLY ONE instance of the text " + `"${v}"` + " — no more, no less. " +
+//       "Position: top center of the image, postcard header placement. " +
+//       "Lettering style: authentic Soviet hand-lettered brush display type, bold strokes, thick characters, slightly uneven hand-crafted feel, reminiscent of 1950s–1960s Soviet poster typography. NOT modern font, NOT sans-serif, NOT digital typeface. " +
+//       "Text color: red fill with gold or yellow outline. " +
+//       "DO NOT place this text at the bottom. DO NOT repeat it anywhere else. Bottom area must be completely clean. " +
+    
+//       "Output format: 16:9 landscape. " +
+//       "Thin uniform border, strictly equal thickness on all four sides — top = bottom = left = right = 12px. No extra padding at bottom. No footer zone. No watermark area. " +
+//       "No watermarks, no logos, no AI signatures anywhere. " +
+//       "Style reference: " + stylePrompt + "."
+//     );
+// }
 
 function buildMayDayPhotoEditPrompt(variantText) {
   const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
   const v = String(variantText || "").trim();
 
-  if (v === "Без текста") {
-    return (
-      "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s, International Workers' Day, socialist realism, праздничная демонстрация, весенний оптимизм. " +
-      "Visual cues of May Day: red flags, banners without text, flowers (especially spring bouquets), bright sky, doves, festive crowd atmosphere, feeling of unity, labor celebration, peace and optimism. " +
-      "Preserve original identity, facial features, proportions, and likeness of all people. Maintain recognizability. No distortion. " +
-      "Semi-realistic Soviet painting style, simplified forms, clean edges, soft idealization of faces, slightly heroic but natural look. " +
-      "Dominant reds with balanced sky blue, warm beige skin tones, fresh spring greens, warm sunlight tones, harmonious vintage palette. " +
-      "Bright daylight, soft and optimistic, no dramatic shadows, no dark mood. " +
-      "Slightly enhance composition to resemble a May Day parade or celebratory scene, uplifting and forward-looking, but keep original structure. " +
-      "Subtle print texture, light grain, soft vintage finish, no heavy aging. " +
-      "Strictly May Day theme only, no other holidays, no text, no typography, no modern elements, no photorealism. " +
-      "Extra style hint: " +
-      stylePrompt +
-      "."
-    );
-  }
+  // ─── Константы текста ──────────────────────────────────────────────────────────
+const TEXT_VARIANTS = {
+  NO_TEXT: "Без текста",
+  MAY_DAY: "С первомаем!",
+  LABOR:   "С днём труда!",
+  SPRING:  "С праздником весны!",
+};
 
-  if (v === "С Первомаем!") {
+// ─── Общие куски промпта ───────────────────────────────────────────────────────
+const SOVIET_STYLE_BASE =
+  "Authentic Soviet May Day postcard, USSR 1950s–1970s, socialist realism, " +
+  "праздничная демонстрация, весенний оптимизм. " +
+  "Visual elements: red flags, spring flowers (tulips, lilac), white doves, bright sky, festive crowd. " +
+  "Semi-realistic Soviet painting style, simplified forms, soft idealization of faces, slightly heroic but natural look. " +
+  "Color palette: dominant reds, sky blue, warm beige skin tones, fresh spring greens, warm sunlight. " +
+  "Bright daylight, soft and optimistic, no dramatic shadows, no dark mood. ";
+
+const SOVIET_TEXT_STYLE =
+  "Lettering style: authentic Soviet hand-lettered brush display type, bold strokes, thick characters, " +
+  "slightly uneven hand-crafted feel, reminiscent of 1950s–1960s Soviet poster typography. " +
+  "NOT modern font, NOT sans-serif, NOT digital typeface. " +
+  "Text color: red fill with gold or yellow outline. ";
+
+const OUTPUT_FORMAT =
+  "Output format: 16:9 landscape. " +
+  "Thin uniform border, strictly equal on all four sides — top = bottom = left = right = 12px. " +
+  "No extra padding at bottom. No footer zone. No watermark area. No AI signatures anywhere. ";
+
+// ─── Единственная функция: редактирование фото ────────────────────────────────
+function buildMayDayPrompt(variantText) {
+  const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
+
+  const base =
+    "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+    SOVIET_STYLE_BASE +
+    "Preserve original identity, facial features, proportions, and likeness of all people. Maintain recognizability. No distortion. " +
+    "Slightly enhance composition to resemble a May Day parade or celebratory scene, uplifting and forward-looking, but keep original structure. " +
+    "Subtle print texture, light grain, soft vintage finish, no heavy aging. " +
+    "Strictly May Day theme only, no other holidays, no modern elements, no photorealism. " +
+    OUTPUT_FORMAT;
+
+  if (v === TEXT_VARIANTS.NO_TEXT) {
     return (
-      "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s, International Workers' Day, socialist realism, праздничная демонстрация, весенний оптимизм. " +
-      "Visual cues of May Day: red flags, banners, flowers, bright sky, festive crowd atmosphere, feeling of unity, labor celebration. " +
-      "Integrated festive lettering 'С Первомаем!' in classic Soviet poster bold sans-serif font, slightly arched or horizontal, bright yellow or white color with thin red stroke, looking like hand-painted holiday calligraphy. " +
-      "Preserve original identity, facial features, proportions, and likeness of all people. Maintain recognizability. " +
-      "Semi-realistic Soviet painting style, simplified forms, clean edges, soft idealization of faces. " +
-      "Dominant reds with balanced sky blue, warm beige skin tones, fresh spring greens. " +
-      "Bright daylight, soft and optimistic, no dark mood. " +
-      "Slightly enhance composition to resemble a May Day celebratory scene with the text 'С Первомаем!' logically placed. " +
-      "Subtle print texture, light grain, soft vintage finish. " +
-      "Strictly May Day theme only, no other holidays, no modern elements, no photorealism. " +
-      "Extra style hint: " +
-      stylePrompt +
-      "."
+      base +
+      "NO TEXT. NO letters. NO typography anywhere in the image. All banners and flags must be blank. "
     );
   }
 
   return (
-    "Отредактируй фотографию в стиле праздничной открытки к 1 Мая (День труда). " +
-    "Добавь на изображение ровно эту надпись (как на открытке), без изменений: " +
-    `"${v}". ` +
-    "Текст должен быть читабельным и аккуратно вписанным в композицию. " +
-    "Сохрани композицию, но добавь праздничную атмосферу. " +
-    "Высокое качество, красивый свет, чистая композиция. " +
-    "Стилистика: " +
-    stylePrompt +
-    "."
+    base +
+    "TEXT REQUIREMENT — CRITICAL: " +
+    `Include EXACTLY ONE instance of the text "${v}" — no more, no less. ` +
+    "Position: top center of the image, postcard header placement. " +
+    SOVIET_TEXT_STYLE +
+    `DO NOT place "${v}" at the bottom. DO NOT repeat it anywhere else. Bottom area must be completely clean. `
   );
+}
 }
 
 function isStartCommand(text) {
@@ -271,12 +297,8 @@ function parseRequiredChannels() {
     .filter((s) => !blocked.has(s));
 }
 
-// Temporarily disabled (as requested): always allow.
 async function checkRequiredSubscriptions(userId) {
-  if (String(process.env.PARTNERS_UI_ENABLED || "").trim() !== "1") {
-    return { ok: true, missing: [] };
-  }
-  const required = Array.from(new Set(["@omk_official", ...parseRequiredChannels()]));
+  const required = Array.from(new Set(["@omk_official", "@team108", "@naebnet", ...parseRequiredChannels()]));
   if (!required.length) return { ok: true, missing: [] };
 
   const missing = [];
@@ -342,7 +364,7 @@ function spendGenerationCredit(userId) {
 }
 
 function noCreditsText() {
-  return "У вас закончились генерации. Подпишитесь на партнеров или попробуйте позже.";
+  return "У вас закончились генерации. Доступно максимум 3 генерации на пользователя.";
 }
 
 function guessFileNameFromMime(mimeType) {
@@ -625,23 +647,43 @@ module.exports = async (req, res) => {
                 text: "Использование: /t2i <что нарисовать>"
               });
             } else {
-              await telegramApi("sendMessage", { chat_id: chatId, text: "Генерирую изображение…" });
-              try {
-                const imageBlob = await generateImage(t2iPrompt);
-                const fileName = guessFileNameFromMime(imageBlob.type);
-                const form = new FormData();
-                form.append("chat_id", String(chatId));
-                form.append("photo", imageBlob, fileName);
-                form.append("caption", t2iPrompt.slice(0, 1024));
-                await telegramApiMultipart("sendPhoto", form);
-              } catch (err) {
-                console.error("text-to-image failed:", err);
-                await telegramApi("sendMessage", {
-                  chat_id: chatId,
-                  text:
-                    "Не смог сгенерировать изображение.\n\n" +
-                    `Ошибка: ${formatHttpError(err)}`
-                });
+              if (!userId) {
+                await telegramApi("sendMessage", { chat_id: chatId, text: "Не вижу user_id :(" });
+              } else {
+                const subs = await checkRequiredSubscriptions(userId);
+                if (!subs.ok) {
+                  await telegramApi("sendMessage", { chat_id: chatId, text: pleaseSubscribeText(), reply_markup: mainMenuReplyMarkup() });
+                } else {
+                  ensureGenerationCredits(userId);
+                  if (getGenerationCredits(userId) <= 0) {
+                    await telegramApi("sendMessage", { chat_id: chatId, text: noCreditsText(), reply_markup: mainMenuReplyMarkup() });
+                    return;
+                  }
+
+                  await telegramApi("sendMessage", { chat_id: chatId, text: "Генерирую изображение…" });
+                  try {
+                    const imageBlob = await generateImage(t2iPrompt);
+                    const fileName = guessFileNameFromMime(imageBlob.type);
+                    const form = new FormData();
+                    form.append("chat_id", String(chatId));
+                    form.append("photo", imageBlob, fileName);
+                    form.append("caption", t2iPrompt.slice(0, 1024));
+                    await telegramApiMultipart("sendPhoto", form);
+                    const left = spendGenerationCredit(userId);
+                    await telegramApi("sendMessage", {
+                      chat_id: chatId,
+                      text: `Готово. Осталось генераций: ${left}/3`
+                    });
+                  } catch (err) {
+                    console.error("text-to-image failed:", err);
+                    await telegramApi("sendMessage", {
+                      chat_id: chatId,
+                      text:
+                        "Не смог сгенерировать изображение.\n\n" +
+                        `Ошибка: ${formatHttpError(err)}`
+                    });
+                  }
+                }
               }
             }
           }
@@ -669,8 +711,8 @@ module.exports = async (req, res) => {
             chat_id: chatId,
             text:
               pending.mode === "variant_photo"
-                ? "Принял фото. Делаю открытку — пришлю, как будет готово."
-                : "Принял фото. Обрабатываю — пришлю, как будет готово."
+                ? "Принял фото. Делаю открытку — пришлю, как будет готово. Примерное время ожидания: 1-2 минуты."
+                : "Принял фото. Обрабатываю — пришлю, как будет готово. Примерное время ожидания: 1-2 минуты."
           });
 
           try {
@@ -680,6 +722,11 @@ module.exports = async (req, res) => {
               // /img flow (style prompt) via callback to avoid timeouts.
               await submitKieStylizeTask({ req, chatId, userId, fileId });
             }
+            const left = spendGenerationCredit(userId);
+            await telegramApi("sendMessage", {
+              chat_id: chatId,
+              text: `Задача запущена. Осталось генераций: ${left}/3`
+            });
           } catch (err) {
             console.error("kie submit failed:", err);
             await telegramApi("sendMessage", {
