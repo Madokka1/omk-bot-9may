@@ -22,9 +22,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            export PATH=$PATH:/usr/bin:/usr/local/bin
             set -e
             cd /root/omk-bot
             git fetch --all
             git reset --hard origin/main
-            npm install
+            npm install --production
             pm2 restart omk-bot || pm2 start index.js --name "omk-bot"
+            pm2 save
