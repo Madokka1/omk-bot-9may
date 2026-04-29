@@ -15,6 +15,7 @@
     "delete-webhook": "node scripts/deleteWebhook.mjs"
   },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "undici": "^7.0.0"
   }
 }
