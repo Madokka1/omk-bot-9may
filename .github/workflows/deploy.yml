@@ -28,6 +28,6 @@ jobs:
             git fetch --all
             git reset --hard origin/main
             npm install --production
-            pm2 delete omk-bot || true
-            pm2 start server.js --name "omk-bot"
+            npm install --production
+            pm2 restart omk-bot --update-env || pm2 start server.js --name "omk-bot"
             pm2 save
