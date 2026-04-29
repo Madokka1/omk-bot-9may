@@ -211,6 +211,9 @@ function buildMayDayPromptSpring() {
 }
 
 function isStartCommand(text) {
+
+
+
   if (!text) return false;
   return /^\/start(\s|$|@)/i.test(text.trim());
 }
@@ -342,6 +345,14 @@ function spendGenerationCredit(userId) {
   return next;
 }
 
+function refundGenerationCredit(userId) {
+  const key = String(userId);
+  const current = getGenerationCredits(key);
+  const next = current + 1;
+  generationCreditsByUserId.set(key, next);
+  return next;
+}
+
 function noCreditsText() {
   return "У вас закончились генерации. Доступно максимум 3 генерации на пользователя.";
 }
@@ -383,14 +394,15 @@ function signProxyUrl({ req, fileId }) {
   return `${base}/api/tg-proxy.jpg?file_id=${encodeURIComponent(fileId)}&exp=${exp}&sig=${encodeURIComponent(sig)}`;
 }
 
-function signKieCallbackUrl({ req, chatId, userId, variantText }) {
+function signKieCallbackUrl({ req, chatId, userId, variantText, creditsLeft }) {
   const secret = (process.env.KIE_CALLBACK_SECRET || "").trim();
   if (!secret) throw new Error("KIE_CALLBACK_SECRET is not set");
 
   const exp = Math.floor(Date.now() / 1000) + 30 * 60;
+  const creditsLeftStr = creditsLeft === undefined || creditsLeft === null ? "" : String(creditsLeft);
   const sig = crypto
     .createHmac("sha256", secret)
-    .update(`${chatId}.${userId}.${variantText}.${exp}`)
+    .update(`${chatId}.${userId}.${variantText}.${creditsLeftStr}.${exp}`)
     .digest("base64url");
 
   const base = getPublicBaseUrl(req);
@@ -401,16 +413,17 @@ function signKieCallbackUrl({ req, chatId, userId, variantText }) {
     `?chat_id=${encodeURIComponent(String(chatId))}` +
     `&user_id=${encodeURIComponent(String(userId))}` +
     `&variant=${encodeURIComponent(String(variantText))}` +
+    `&credits_left=${encodeURIComponent(String(creditsLeftStr))}` +
     `&exp=${encodeURIComponent(String(exp))}` +
     `&sig=${encodeURIComponent(String(sig))}`;
   return url;
 }
 
-async function submitKieEditTask({ req, chatId, userId, fileId, variantText }) {
+async function submitKieEditTask({ req, chatId, userId, fileId, variantText, creditsLeft }) {
   const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
 
   const inputUrl = signProxyUrl({ req, fileId });
-  const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: v });
+  const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: v, creditsLeft });
   if (String(process.env.DEBUG_KIE_CALLBACK_URL || "").trim() === "1") {
     console.log("[kie] callback url:", callBackUrl.replace(/sig=[^&]+/, "sig=***"));
   }
@@ -490,7 +503,7 @@ async function stylizePhoto({ req, fileId }) {
   return await kie.fetchImageAsBlob(urls[0]);
 }
 
-async function submitKieStylizeTask({ req, chatId, userId, fileId }) {
+async function submitKieStylizeTask({ req, chatId, userId, fileId, creditsLeft }) {
   const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
   const prompt =
     "Отредактируй изображение в стилистике: " +
@@ -498,7 +511,7 @@ async function submitKieStylizeTask({ req, chatId, userId, fileId }) {
     ". Сохрани композицию, но сделай общий стиль соответствующим.";
 
   const inputUrl = signProxyUrl({ req, fileId });
-  const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: stylePrompt || "IMG" });
+  const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: stylePrompt || "IMG", creditsLeft });
   if (String(process.env.DEBUG_KIE_CALLBACK_URL || "").trim() === "1") {
     console.log("[kie] callback url:", callBackUrl.replace(/sig=[^&]+/, "sig=***"));
   }
@@ -650,6 +663,14 @@ module.exports = async (req, res) => {
               });
             }
           }
+        } else {
+          await telegramApi("sendMessage", {
+            chat_id: chatId,
+            text:
+              "Я выполняю команды только в режиме генерации: нажмите «Сгенерировать», выберите вариант и отправьте фото.\n\n" +
+              "Генерации доступны только если вы подписаны на всех партнеров и у вас остались генерации (до 3 на пользователя).",
+            reply_markup: mainMenuReplyMarkup()
+          });
         }
       }
 
@@ -678,20 +699,32 @@ module.exports = async (req, res) => {
                 : "Принял фото. Обрабатываю — пришлю, как будет готово. Примерное время ожидания: 1-2 минуты."
           });
 
+          let left = null;
           try {
+            left = spendGenerationCredit(userId);
             if (pending.mode === "variant_photo") {
-              await submitKieEditTask({ req, chatId, userId, fileId, variantText: pending.variantText });
+              await submitKieEditTask({
+                req,
+                chatId,
+                userId,
+                fileId,
+                variantText: pending.variantText,
+                creditsLeft: left
+              });
             } else {
               // /img flow (style prompt) via callback to avoid timeouts.
-              await submitKieStylizeTask({ req, chatId, userId, fileId });
+              await submitKieStylizeTask({ req, chatId, userId, fileId, creditsLeft: left });
             }
-            const left = spendGenerationCredit(userId);
             await telegramApi("sendMessage", {
               chat_id: chatId,
-              text: `Задача запущена. Осталось генераций: ${left}/3`
+              text: "Задача запущена. Как будет готово, пришлю изображение."
             });
           } catch (err) {
             console.error("kie submit failed:", err);
+            try {
+              // refund only if we computed creditsLeft (meaning we successfully decremented or at least attempted to).
+              if (left !== null) refundGenerationCredit(userId);
+            } catch (_) {}
             await telegramApi("sendMessage", {
               chat_id: chatId,
               text: "Не смог запустить обработку фото.\n\n" + `Ошибка: ${formatHttpError(err)}`

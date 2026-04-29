@@ -20,10 +20,17 @@ function getSecret() {
   return secret;
 }
 
-function sign(secret, chatId, userId, variantText, exp) {
+function sign(secret, chatId, userId, variantText, exp, creditsLeftRaw) {
+  // Backward compatibility: old callback signed without credits_left.
+  const creditsPart = creditsLeftRaw === undefined ? "" : String(creditsLeftRaw);
+  const signed =
+    creditsLeftRaw === undefined
+      ? `${chatId}.${userId}.${variantText}.${exp}`
+      : `${chatId}.${userId}.${variantText}.${creditsPart}.${exp}`;
+
   return crypto
     .createHmac("sha256", secret)
-    .update(`${chatId}.${userId}.${variantText}.${exp}`)
+    .update(signed)
     .digest("base64url");
 }
 
@@ -110,6 +117,7 @@ module.exports = async (req, res) => {
     const chatId = url.searchParams.get("chat_id") || "";
     const userId = url.searchParams.get("user_id") || "";
     const variantText = url.searchParams.get("variant") || "";
+    const creditsLeftRaw = url.searchParams.get("credits_left");
     const expRaw = url.searchParams.get("exp") || "";
     const sig = url.searchParams.get("sig") || "";
 
@@ -119,7 +127,10 @@ module.exports = async (req, res) => {
       return sendJson(res, 401, { ok: false, error: "Unauthorized" });
     }
 
-    const expectedSig = sign(getSecret(), chatId, userId, variantText, expRaw);
+    const expectedSig =
+      creditsLeftRaw === null
+        ? sign(getSecret(), chatId, userId, variantText, expRaw)
+        : sign(getSecret(), chatId, userId, variantText, expRaw, creditsLeftRaw);
     if (!timingSafeEqual(sig, expectedSig)) return sendJson(res, 401, { ok: false, error: "Unauthorized" });
 
     // Read json body (small)
@@ -147,6 +158,21 @@ module.exports = async (req, res) => {
     const resultUrl = getResultUrlFromPayload(body);
     if (!taskId && !resultUrl) return sendJson(res, 200, { ok: true, ignored: true });
 
+    const maxCredits = Number(process.env.INITIAL_GENERATIONS || 3);
+    const creditsLeft = creditsLeftRaw === undefined || creditsLeftRaw === null || String(creditsLeftRaw).trim() === "" ? NaN : Number(creditsLeftRaw);
+
+    function afterSendPhotoMessage() {
+      if (!Number.isFinite(creditsLeft)) {
+        return "Ваше изображение готово.";
+      }
+
+      if (creditsLeft > 0) {
+        return `Ваше изображение готово! Осталось генераций: ${creditsLeft} из ${maxCredits}.`;
+      }
+
+      return `Ваше изображение готово! У вас закончились генерации. Следите за обновлениями в нашем телеграм-канале.`;
+    }
+
     if (!resultUrl) {
       const task = await kie.getTask(taskId);
       const state = String(kie.getTaskState(task) || "").toLowerCase();
@@ -170,8 +196,8 @@ module.exports = async (req, res) => {
       const form = new FormData();
       form.append("chat_id", String(chatId));
       form.append("photo", blob, fileName);
-      form.append("caption", String(variantText).slice(0, 1024));
       await telegramApiMultipart("sendPhoto", form);
+      await telegramApi("sendMessage", { chat_id: chatId, text: afterSendPhotoMessage() });
 
       return sendJson(res, 200, { ok: true });
     }
@@ -181,8 +207,8 @@ module.exports = async (req, res) => {
     const form = new FormData();
     form.append("chat_id", String(chatId));
     form.append("photo", blob, fileName);
-    form.append("caption", String(variantText).slice(0, 1024));
     await telegramApiMultipart("sendPhoto", form);
+    await telegramApi("sendMessage", { chat_id: chatId, text: afterSendPhotoMessage() });
 
     return sendJson(res, 200, { ok: true });
   } catch (err) {
