@@ -35,56 +35,86 @@ function withTimeout(ms) {
   return { controller, timeout };
 }
 
-async function telegramApi(method, payload) {
+function isRetryableError(err) {
+  if (!err) return false;
+  const code = err.code || err.cause?.code || "";
+  const msg = typeof err.message === "string" ? err.message : "";
+  return (
+    code === "ETIMEDOUT" ||
+    code === "ECONNRESET" ||
+    code === "ENOTFOUND" ||
+    code === "EAI_AGAIN" ||
+    err.name === "AbortError" ||
+    msg.includes("fetch failed")
+  );
+}
+
+async function telegramApi(method, payload, { retries = 2 } = {}) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-  const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 30000));
-  try {
-    const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal
-    });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 60000));
+    try {
+      const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
 
-    const json = await resp.json().catch(() => null);
-    if (!resp.ok || !json?.ok) {
-      const details = json ? JSON.stringify(json) : String(resp.status);
-      const err = new Error(`Telegram API error: ${details}`);
-      err.httpStatus = resp.status;
-      err.httpBody = json ?? details;
+      const json = await resp.json().catch(() => null);
+      if (!resp.ok || !json?.ok) {
+        const details = json ? JSON.stringify(json) : String(resp.status);
+        const err = new Error(`Telegram API error: ${details}`);
+        err.httpStatus = resp.status;
+        err.httpBody = json ?? details;
+        throw err;
+      }
+      return json.result;
+    } catch (err) {
+      clearTimeout(timeout);
+      if (attempt < retries && isRetryableError(err)) {
+        console.warn(`[telegram] ${method} attempt ${attempt + 1} failed (${err.code || err.name}), retrying...`);
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
       throw err;
     }
-    return json.result;
-  } finally {
-    clearTimeout(timeout);
   }
 }
 
-async function telegramApiMultipart(method, formData) {
+async function telegramApiMultipart(method, formData, { retries = 2 } = {}) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-  const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 30000));
-  try {
-    const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: "POST",
-      body: formData,
-      signal: controller.signal
-    });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 60000));
+    try {
+      const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal
+      });
 
-    const json = await resp.json().catch(() => null);
-    if (!resp.ok || !json?.ok) {
-      const details = json ? JSON.stringify(json) : String(resp.status);
-      const err = new Error(`Telegram API error: ${details}`);
-      err.httpStatus = resp.status;
-      err.httpBody = json ?? details;
+      const json = await resp.json().catch(() => null);
+      if (!resp.ok || !json?.ok) {
+        const details = json ? JSON.stringify(json) : String(resp.status);
+        const err = new Error(`Telegram API error: ${details}`);
+        err.httpStatus = resp.status;
+        err.httpBody = json ?? details;
+        throw err;
+      }
+      return json.result;
+    } catch (err) {
+      clearTimeout(timeout);
+      if (attempt < retries && isRetryableError(err)) {
+        console.warn(`[telegram] ${method} multipart attempt ${attempt + 1} failed (${err.code || err.name}), retrying...`);
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
       throw err;
     }
-    return json.result;
-  } finally {
-    clearTimeout(timeout);
   }
 }
 

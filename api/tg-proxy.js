@@ -6,6 +6,20 @@ function withTimeout(ms) {
   return { controller, timeout };
 }
 
+function isRetryableError(err) {
+  if (!err) return false;
+  const code = err.code || err.cause?.code || "";
+  const msg = typeof err.message === "string" ? err.message : "";
+  return (
+    code === "ETIMEDOUT" ||
+    code === "ECONNRESET" ||
+    code === "ENOTFOUND" ||
+    code === "EAI_AGAIN" ||
+    err.name === "AbortError" ||
+    msg.includes("fetch failed")
+  );
+}
+
 function send(res, statusCode, body, headers = {}) {
   res.statusCode = statusCode;
   for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
@@ -32,27 +46,35 @@ function sign(secret, fileId, exp) {
   return base64Url(mac);
 }
 
-async function telegramApi(method, payload) {
+async function telegramApi(method, payload, { retries = 2 } = {}) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-  const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 30000));
-  try {
-    const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal
-    });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 60000));
+    try {
+      const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
 
-    const json = await resp.json().catch(() => null);
-    if (!resp.ok || !json?.ok) {
-      const details = json ? JSON.stringify(json) : String(resp.status);
-      throw new Error(`Telegram API error: ${details}`);
+      const json = await resp.json().catch(() => null);
+      if (!resp.ok || !json?.ok) {
+        const details = json ? JSON.stringify(json) : String(resp.status);
+        throw new Error(`Telegram API error: ${details}`);
+      }
+      return json.result;
+    } catch (err) {
+      clearTimeout(timeout);
+      if (attempt < retries && isRetryableError(err)) {
+        console.warn(`[telegram] ${method} attempt ${attempt + 1} failed (${err.code || err.name}), retrying...`);
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+      throw err;
     }
-    return json.result;
-  } finally {
-    clearTimeout(timeout);
   }
 }
 
@@ -91,18 +113,27 @@ module.exports = async (req, res) => {
 
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const tgUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-    const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_FILE_TIMEOUT_MS || 30000));
-    try {
-      const resp = await fetch(tgUrl, { signal: controller.signal });
-      if (!resp.ok) {
-        return send(res, 502, "Bad gateway", { "content-type": "text/plain; charset=utf-8" });
-      }
+    const fileTimeoutMs = Number(process.env.TELEGRAM_FILE_TIMEOUT_MS || 60000);
+    for (let attempt = 0; attempt <= 2; attempt++) {
+      const { controller, timeout } = withTimeout(fileTimeoutMs);
+      try {
+        const resp = await fetch(tgUrl, { signal: controller.signal });
+        if (!resp.ok) {
+          return send(res, 502, "Bad gateway", { "content-type": "text/plain; charset=utf-8" });
+        }
 
-      const contentType = resp.headers.get("content-type") || "application/octet-stream";
-      const bytes = Buffer.from(await resp.arrayBuffer());
-      return send(res, 200, bytes, { "content-type": contentType, "cache-control": "public, max-age=60" });
-    } finally {
-      clearTimeout(timeout);
+        const contentType = resp.headers.get("content-type") || "application/octet-stream";
+        const bytes = Buffer.from(await resp.arrayBuffer());
+        return send(res, 200, bytes, { "content-type": contentType, "cache-control": "public, max-age=60" });
+      } catch (err) {
+        clearTimeout(timeout);
+        if (attempt < 2 && isRetryableError(err)) {
+          console.warn(`[tg-proxy] file fetch attempt ${attempt + 1} failed (${err.code || err.name}), retrying...`);
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        throw err;
+      }
     }
   } catch (err) {
     console.error(err);
