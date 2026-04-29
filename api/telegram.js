@@ -88,9 +88,8 @@ function getPublicBaseUrl(req) {
 }
 
 function mainMenuReplyMarkup() {
-  const partnersEnabled = String(process.env.PARTNERS_UI_ENABLED || "").trim() === "1";
   return {
-    keyboard: partnersEnabled ? [[{ text: "Сгенерировать" }, { text: "Партнеры" }]] : [[{ text: "Сгенерировать" }]],
+    keyboard: [[{ text: "Сгенерировать" }, { text: "Партнеры" }]],
     resize_keyboard: true,
     one_time_keyboard: false
   };
@@ -621,10 +620,6 @@ module.exports = async (req, res) => {
             }
           }
         } else if (text.trim() === "Партнеры") {
-          if (String(process.env.PARTNERS_UI_ENABLED || "").trim() !== "1") {
-            await telegramApi("sendMessage", { chat_id: chatId, text: "Ок.", reply_markup: mainMenuReplyMarkup() });
-            return;
-          }
           await telegramApi("sendMessage", {
             chat_id: chatId,
             text: partnersText(),
