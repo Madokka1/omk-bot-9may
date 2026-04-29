@@ -99,8 +99,8 @@ function mainMenuReplyMarkup() {
 function generationVariantsReplyMarkup() {
   return {
     keyboard: [
-      [{ text: "Без текста" }, { text: "С Первомаем!" }],
-      [{ text: "Работа работой, май — по расписанию" }, { text: "Товарищи-металлурги, с праздником!" }],
+      [{ text: TEXT_VARIANTS.NO_TEXT }, { text: TEXT_VARIANTS.MAY_DAY }],
+      [{ text: TEXT_VARIANTS.LABOR }, { text: TEXT_VARIANTS.SPRING }],
       [{ text: "Назад" }]
     ],
     resize_keyboard: true,
@@ -119,68 +119,20 @@ function backOnlyReplyMarkup() {
 function isGenerationVariant(text) {
   const t = String(text || "").trim();
   return (
-    t === "Без текста" ||
-    t === "С Первомаем!" ||
-    t === "Работа работой, май — по расписанию" ||
-    t === "Товарищи-металлурги, с праздником!"
+    t === TEXT_VARIANTS.NO_TEXT ||
+    t === TEXT_VARIANTS.MAY_DAY ||
+    t === TEXT_VARIANTS.LABOR ||
+    t === TEXT_VARIANTS.SPRING
   );
 }
 
-// function buildMayDayPostcardPrompt(variantText) {
-//   const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
-//   const v = String(variantText || "").trim();
-
-//   if (v === "Без текста") {
-//     return (
-//       "Generate a festive May Day (1st of May, International Workers' Day) postcard illustration. " +
-//       "Style: authentic Soviet postcard, USSR 1950s–1970s, socialist realism. " +
-//       "Visual elements: red flags, spring flowers (tulips, lilac), white doves, bright sky, festive crowd, feeling of unity and optimism. " +
-//       "Rendering: semi-realistic Soviet painting style, simplified forms, soft idealization of faces, slightly heroic but natural look. " +
-//       "Color palette: dominant reds, sky blue, warm beige skin tones, fresh spring greens, warm sunlight. " +
-//       "Lighting: bright daylight, soft and optimistic, no dramatic shadows. " +
-//       "NO TEXT. NO letters. NO typography anywhere in the image. " +
-//       "Output format: 16:9 landscape. " +
-//       "Thin uniform border equal on all four sides (top = bottom = left = right). " +
-//       "No watermarks, no logos, no AI signatures. " +
-//       "Style reference: " + stylePrompt + "."
-//     );
-//   }
-  
-//     return (
-//       "Generate a festive May Day (1st of May, International Workers' Day) postcard illustration. " +
-//       "Style: authentic Soviet postcard, USSR 1950s–1970s, socialist realism. " +
-//       "Visual elements: red flags, spring flowers (tulips, lilac), white doves, bright sky, festive crowd, feeling of unity and optimism. " +
-//       "Rendering: semi-realistic Soviet painting style, simplified forms, soft idealization of faces, slightly heroic but natural look. " +
-//       "Color palette: dominant reds, sky blue, warm beige skin tones, fresh spring greens, warm sunlight. " +
-//       "Lighting: bright daylight, soft and optimistic, no dramatic shadows. " +
-    
-//       "TEXT REQUIREMENT — CRITICAL: " +
-//       "Include EXACTLY ONE instance of the text " + `"${v}"` + " — no more, no less. " +
-//       "Position: top center of the image, postcard header placement. " +
-//       "Lettering style: authentic Soviet hand-lettered brush display type, bold strokes, thick characters, slightly uneven hand-crafted feel, reminiscent of 1950s–1960s Soviet poster typography. NOT modern font, NOT sans-serif, NOT digital typeface. " +
-//       "Text color: red fill with gold or yellow outline. " +
-//       "DO NOT place this text at the bottom. DO NOT repeat it anywhere else. Bottom area must be completely clean. " +
-    
-//       "Output format: 16:9 landscape. " +
-//       "Thin uniform border, strictly equal thickness on all four sides — top = bottom = left = right = 12px. No extra padding at bottom. No footer zone. No watermark area. " +
-//       "No watermarks, no logos, no AI signatures anywhere. " +
-//       "Style reference: " + stylePrompt + "."
-//     );
-// }
-
-function buildMayDayPhotoEditPrompt(variantText) {
-  const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
-  const v = String(variantText || "").trim();
-
-  // ─── Константы текста ──────────────────────────────────────────────────────────
 const TEXT_VARIANTS = {
   NO_TEXT: "Без текста",
-  MAY_DAY: "С первомаем!",
-  LABOR:   "С днём труда!",
-  SPRING:  "С праздником весны!",
+  MAY_DAY: "С Первомаем!",
+  LABOR: "Работа работой, май — по расписанию",
+  SPRING: "Товарищи-металлурги, с праздником!"
 };
 
-// ─── Общие куски промпта ───────────────────────────────────────────────────────
 const SOVIET_STYLE_BASE =
   "Authentic Soviet May Day postcard, USSR 1950s–1970s, socialist realism, " +
   "праздничная демонстрация, весенний оптимизм. " +
@@ -200,28 +152,28 @@ const OUTPUT_FORMAT =
   "Thin uniform border, strictly equal on all four sides — top = bottom = left = right = 12px. " +
   "No extra padding at bottom. No footer zone. No watermark area. No AI signatures anywhere. ";
 
-// ─── Единственная функция: редактирование фото ────────────────────────────────
-function buildMayDayPrompt(variantText) {
-  const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
+const SOVIET_COMMON_BASE =
+  "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+  SOVIET_STYLE_BASE +
+  "Preserve original identity, facial features, proportions, and likeness of all people. Maintain recognizability. No distortion. " +
+  "Slightly enhance composition to resemble a May Day parade or celebratory scene, uplifting and forward-looking, but keep original structure. " +
+  "Subtle print texture, light grain, soft vintage finish, no heavy aging. " +
+  "Strictly May Day theme only, no other holidays, no modern elements, no photorealism. " +
+  OUTPUT_FORMAT;
 
-  const base =
-    "Transform this photo into an authentic Soviet May Day postcard illustration. " +
-    SOVIET_STYLE_BASE +
-    "Preserve original identity, facial features, proportions, and likeness of all people. Maintain recognizability. No distortion. " +
-    "Slightly enhance composition to resemble a May Day parade or celebratory scene, uplifting and forward-looking, but keep original structure. " +
-    "Subtle print texture, light grain, soft vintage finish, no heavy aging. " +
-    "Strictly May Day theme only, no other holidays, no modern elements, no photorealism. " +
-    OUTPUT_FORMAT;
-
-  if (v === TEXT_VARIANTS.NO_TEXT) {
-    return (
-      base +
-      "NO TEXT. NO letters. NO typography anywhere in the image. All banners and flags must be blank. "
-    );
-  }
-
+// 1) Без текста
+function buildMayDayPromptNoText() {
   return (
-    base +
+    SOVIET_COMMON_BASE +
+    "NO TEXT. NO letters. NO typography anywhere in the image. All banners and flags must be blank. "
+  );
+}
+
+// 2) Текстовый вариант (общий конструктор для 3 фраз)
+function buildMayDayPromptTextVariant(exactText) {
+  const v = String(exactText || TEXT_VARIANTS.MAY_DAY).trim();
+  return (
+    SOVIET_COMMON_BASE +
     "TEXT REQUIREMENT — CRITICAL: " +
     `Include EXACTLY ONE instance of the text "${v}" — no more, no less. ` +
     "Position: top center of the image, postcard header placement. " +
@@ -229,6 +181,18 @@ function buildMayDayPrompt(variantText) {
     `DO NOT place "${v}" at the bottom. DO NOT repeat it anywhere else. Bottom area must be completely clean. `
   );
 }
+
+// 3) Для каждой категории — отдельная функция промпта
+function buildMayDayPromptMayDay() {
+  return buildMayDayPromptTextVariant(TEXT_VARIANTS.MAY_DAY);
+}
+
+function buildMayDayPromptLabor() {
+  return buildMayDayPromptTextVariant(TEXT_VARIANTS.LABOR);
+}
+
+function buildMayDayPromptSpring() {
+  return buildMayDayPromptTextVariant(TEXT_VARIANTS.SPRING);
 }
 
 function isStartCommand(text) {
@@ -428,15 +392,20 @@ function signKieCallbackUrl({ req, chatId, userId, variantText }) {
 }
 
 async function submitKieEditTask({ req, chatId, userId, fileId, variantText }) {
-  const v = String(variantText || "").trim();
-  const prompt = buildMayDayPhotoEditPrompt(v);
+  let v = String(variantText || "").trim();
+  if (!v) v = TEXT_VARIANTS.MAY_DAY;
+  if (v !== TEXT_VARIANTS.NO_TEXT && v !== TEXT_VARIANTS.MAY_DAY && v !== TEXT_VARIANTS.LABOR && v !== TEXT_VARIANTS.SPRING) {
+    v = TEXT_VARIANTS.MAY_DAY;
+  }
+
   const inputUrl = signProxyUrl({ req, fileId });
   const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: v });
   if (String(process.env.DEBUG_KIE_CALLBACK_URL || "").trim() === "1") {
     console.log("[kie] callback url:", callBackUrl.replace(/sig=[^&]+/, "sig=***"));
   }
 
-  if (v === "Без текста") {
+  const submitNoText = async () => {
+    const prompt = buildMayDayPromptNoText();
     const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
     const extraInput = { output_format: "png", image_size: "1:1" };
     return await kie.createTask({
@@ -448,16 +417,53 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText }) {
       },
       callBackUrl
     });
-  }
+  };
 
-  return await kie.createTask({
-    model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
-    input: {
-      prompt: String(prompt || "").trim(),
-      image_urls: [String(inputUrl || "").trim()].filter(Boolean)
-    },
-    callBackUrl
-  });
+  const submitMayDay = async () => {
+    const prompt = buildMayDayPromptMayDay();
+    return await kie.createTask({
+      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      input: {
+        prompt: String(prompt || "").trim(),
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+      },
+      callBackUrl
+    });
+  };
+
+  const submitLabor = async () => {
+    const prompt = buildMayDayPromptLabor();
+    return await kie.createTask({
+      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      input: {
+        prompt: String(prompt || "").trim(),
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+      },
+      callBackUrl
+    });
+  };
+
+  const submitSpring = async () => {
+    const prompt = buildMayDayPromptSpring();
+    return await kie.createTask({
+      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      input: {
+        prompt: String(prompt || "").trim(),
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+      },
+      callBackUrl
+    });
+  };
+
+  const submitByVariant = {
+    [TEXT_VARIANTS.NO_TEXT]: submitNoText,
+    [TEXT_VARIANTS.MAY_DAY]: submitMayDay,
+    [TEXT_VARIANTS.LABOR]: submitLabor,
+    [TEXT_VARIANTS.SPRING]: submitSpring
+  };
+
+  const submitFn = submitByVariant[v] || submitMayDay;
+  return await submitFn();
 }
 
 async function stylizePhoto({ req, fileId }) {
@@ -494,11 +500,6 @@ async function submitKieStylizeTask({ req, chatId, userId, fileId }) {
     },
     callBackUrl
   });
-}
-
-async function generateImage(prompt) {
-  const { urls } = await kie.generateImageFromText(prompt);
-  return await kie.fetchImageAsBlob(urls[0]);
 }
 
 module.exports = async (req, res) => {
@@ -636,55 +637,6 @@ module.exports = async (req, res) => {
                 text: "Отправьте вашу фотографию.",
                 reply_markup: backOnlyReplyMarkup()
               });
-            }
-          }
-        } else {
-          const t2iPrompt = parseCommand(text, "t2i");
-          if (t2iPrompt !== null) {
-            if (!t2iPrompt) {
-              await telegramApi("sendMessage", {
-                chat_id: chatId,
-                text: "Использование: /t2i <что нарисовать>"
-              });
-            } else {
-              if (!userId) {
-                await telegramApi("sendMessage", { chat_id: chatId, text: "Не вижу user_id :(" });
-              } else {
-                const subs = await checkRequiredSubscriptions(userId);
-                if (!subs.ok) {
-                  await telegramApi("sendMessage", { chat_id: chatId, text: pleaseSubscribeText(), reply_markup: mainMenuReplyMarkup() });
-                } else {
-                  ensureGenerationCredits(userId);
-                  if (getGenerationCredits(userId) <= 0) {
-                    await telegramApi("sendMessage", { chat_id: chatId, text: noCreditsText(), reply_markup: mainMenuReplyMarkup() });
-                    return;
-                  }
-
-                  await telegramApi("sendMessage", { chat_id: chatId, text: "Генерирую изображение…" });
-                  try {
-                    const imageBlob = await generateImage(t2iPrompt);
-                    const fileName = guessFileNameFromMime(imageBlob.type);
-                    const form = new FormData();
-                    form.append("chat_id", String(chatId));
-                    form.append("photo", imageBlob, fileName);
-                    form.append("caption", t2iPrompt.slice(0, 1024));
-                    await telegramApiMultipart("sendPhoto", form);
-                    const left = spendGenerationCredit(userId);
-                    await telegramApi("sendMessage", {
-                      chat_id: chatId,
-                      text: `Готово. Осталось генераций: ${left}/3`
-                    });
-                  } catch (err) {
-                    console.error("text-to-image failed:", err);
-                    await telegramApi("sendMessage", {
-                      chat_id: chatId,
-                      text:
-                        "Не смог сгенерировать изображение.\n\n" +
-                        `Ошибка: ${formatHttpError(err)}`
-                    });
-                  }
-                }
-              }
             }
           }
         }
