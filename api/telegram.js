@@ -278,8 +278,14 @@ function parseRequiredChannels() {
     .filter((s) => !blocked.has(s));
 }
 
+function getRequiredPartnerChannels() {
+  // Keep this list in sync with partnersText(), so the UI matches the real checks.
+  const staticPartners = ["@codeeeeeeeeasd"];
+  return Array.from(new Set([...staticPartners, ...parseRequiredChannels()]));
+}
+
 async function checkRequiredSubscriptions(userId) {
-  const required = Array.from(new Set(["@omk_official", "@team108", "@naebnet", ...parseRequiredChannels()]));
+  const required = getRequiredPartnerChannels();
   if (!required.length) return { ok: true, missing: [] };
 
   const missing = [];
@@ -299,19 +305,11 @@ async function checkRequiredSubscriptions(userId) {
 }
 
 function partnersText() {
-  const channels = parseRequiredChannels();
+  const channels = getRequiredPartnerChannels();
   const lines = ["Партнеры:"];
 
-  // Static partner link (always shown)
-  lines.push(`code - @codeeeeeeeeasd`);
-  // lines.push(`108digital - @team108`);
-  // lines.push(`NN - @naebnet`);
-
   if (!channels.length) return lines.join("\n");
-  for (const ch of channels) {
-    const link = `https://t.me/${ch.replace(/^@/, "")}`;
-    lines.push(`- ${ch} — ${link}`);
-  }
+  for (const ch of channels) lines.push(`- ${ch}`);
   return lines.join("\n");
 }
 
