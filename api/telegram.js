@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { fetchWithAgent } = require("../lib/fetch");
 const kie = require("../lib/kie");
 
 function getJsonBody(req) {
@@ -56,7 +57,7 @@ async function telegramApi(method, payload, { retries = 2 } = {}) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 60000));
     try {
-      const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      const resp = await fetchWithAgent(`https://api.telegram.org/bot${token}/${method}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(payload),
@@ -91,7 +92,7 @@ async function telegramApiMultipart(method, formData, { retries = 2 } = {}) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 60000));
     try {
-      const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      const resp = await fetchWithAgent(`https://api.telegram.org/bot${token}/${method}`, {
         method: "POST",
         body: formData,
         signal: controller.signal

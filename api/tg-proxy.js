@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { fetchWithAgent } = require("../lib/fetch");
 
 function withTimeout(ms) {
   const controller = new AbortController();
@@ -53,7 +54,7 @@ async function telegramApi(method, payload, { retries = 2 } = {}) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 60000));
     try {
-      const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      const resp = await fetchWithAgent(`https://api.telegram.org/bot${token}/${method}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(payload),
@@ -117,7 +118,7 @@ module.exports = async (req, res) => {
     for (let attempt = 0; attempt <= 2; attempt++) {
       const { controller, timeout } = withTimeout(fileTimeoutMs);
       try {
-        const resp = await fetch(tgUrl, { signal: controller.signal });
+        const resp = await fetchWithAgent(tgUrl, { signal: controller.signal });
         if (!resp.ok) {
           return send(res, 502, "Bad gateway", { "content-type": "text/plain; charset=utf-8" });
         }
