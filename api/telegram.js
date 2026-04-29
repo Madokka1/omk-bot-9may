@@ -39,41 +39,53 @@ async function telegramApi(method, payload) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-  const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 30000));
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
 
-  const json = await resp.json().catch(() => null);
-  if (!resp.ok || !json?.ok) {
-    const details = json ? JSON.stringify(json) : String(resp.status);
-    const err = new Error(`Telegram API error: ${details}`);
-    err.httpStatus = resp.status;
-    err.httpBody = json ?? details;
-    throw err;
+    const json = await resp.json().catch(() => null);
+    if (!resp.ok || !json?.ok) {
+      const details = json ? JSON.stringify(json) : String(resp.status);
+      const err = new Error(`Telegram API error: ${details}`);
+      err.httpStatus = resp.status;
+      err.httpBody = json ?? details;
+      throw err;
+    }
+    return json.result;
+  } finally {
+    clearTimeout(timeout);
   }
-  return json.result;
 }
 
 async function telegramApiMultipart(method, formData) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-  const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-    method: "POST",
-    body: formData
-  });
+  const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 30000));
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal
+    });
 
-  const json = await resp.json().catch(() => null);
-  if (!resp.ok || !json?.ok) {
-    const details = json ? JSON.stringify(json) : String(resp.status);
-    const err = new Error(`Telegram API error: ${details}`);
-    err.httpStatus = resp.status;
-    err.httpBody = json ?? details;
-    throw err;
+    const json = await resp.json().catch(() => null);
+    if (!resp.ok || !json?.ok) {
+      const details = json ? JSON.stringify(json) : String(resp.status);
+      const err = new Error(`Telegram API error: ${details}`);
+      err.httpStatus = resp.status;
+      err.httpBody = json ?? details;
+      throw err;
+    }
+    return json.result;
+  } finally {
+    clearTimeout(timeout);
   }
-  return json.result;
 }
 
 function getPublicBaseUrl(req) {

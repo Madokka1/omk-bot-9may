@@ -1,5 +1,11 @@
 const crypto = require("crypto");
 
+function withTimeout(ms) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), ms);
+  return { controller, timeout };
+}
+
 function send(res, statusCode, body, headers = {}) {
   res.statusCode = statusCode;
   for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
@@ -30,18 +36,24 @@ async function telegramApi(method, payload) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-  const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_API_TIMEOUT_MS || 30000));
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
 
-  const json = await resp.json().catch(() => null);
-  if (!resp.ok || !json?.ok) {
-    const details = json ? JSON.stringify(json) : String(resp.status);
-    throw new Error(`Telegram API error: ${details}`);
+    const json = await resp.json().catch(() => null);
+    if (!resp.ok || !json?.ok) {
+      const details = json ? JSON.stringify(json) : String(resp.status);
+      throw new Error(`Telegram API error: ${details}`);
+    }
+    return json.result;
+  } finally {
+    clearTimeout(timeout);
   }
-  return json.result;
 }
 
 module.exports = async (req, res) => {
@@ -79,14 +91,19 @@ module.exports = async (req, res) => {
 
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const tgUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-    const resp = await fetch(tgUrl);
-    if (!resp.ok) {
-      return send(res, 502, "Bad gateway", { "content-type": "text/plain; charset=utf-8" });
-    }
+    const { controller, timeout } = withTimeout(Number(process.env.TELEGRAM_FILE_TIMEOUT_MS || 30000));
+    try {
+      const resp = await fetch(tgUrl, { signal: controller.signal });
+      if (!resp.ok) {
+        return send(res, 502, "Bad gateway", { "content-type": "text/plain; charset=utf-8" });
+      }
 
-    const contentType = resp.headers.get("content-type") || "application/octet-stream";
-    const bytes = Buffer.from(await resp.arrayBuffer());
-    return send(res, 200, bytes, { "content-type": contentType, "cache-control": "public, max-age=60" });
+      const contentType = resp.headers.get("content-type") || "application/octet-stream";
+      const bytes = Buffer.from(await resp.arrayBuffer());
+      return send(res, 200, bytes, { "content-type": contentType, "cache-control": "public, max-age=60" });
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch (err) {
     console.error(err);
     return send(res, 500, "Internal error", { "content-type": "text/plain; charset=utf-8" });

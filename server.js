@@ -3,6 +3,14 @@ require("dotenv").config();
 const http = require("http");
 const { URL } = require("url");
 
+process.on("uncaughtException", (err) => {
+  console.error("[fatal] uncaughtException:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[fatal] unhandledRejection at:", promise, "reason:", reason);
+});
+
 const telegramHandler = require("./api/telegram");
 const tgProxyHandler = require("./api/tg-proxy");
 const kieCallbackHandler = require("./api/kie-callback");
@@ -44,6 +52,10 @@ const server = http.createServer(async (req, res) => {
       // ignore
     }
   }
+});
+
+server.on("error", (err) => {
+  console.error("[server] error:", err);
 });
 
 const port = Number(process.env.PORT || 3000);
