@@ -23,9 +23,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
-            cd "${{ secrets.PROJECT_PATH }}"
+            cd /root/omk-bot
             git fetch --all
             git reset --hard origin/main
-            npm ci --omit=dev
-            sudo systemctl restart telegram-bot
-            sudo systemctl status telegram-bot --no-pager
+            npm install
+            pm2 restart omk-bot || pm2 start index.js --name "omk-bot"
