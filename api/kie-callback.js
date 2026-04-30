@@ -1,7 +1,14 @@
 const crypto = require("crypto");
+const fs = require("fs/promises");
+const path = require("path");
 const { fetchWithAgent } = require("../lib/fetch");
 const kie = require("../lib/kie");
 const creditsStore = require("../lib/credits-store");
+let sharp = null;
+try {
+  // optional at runtime, but installed in this repo
+  sharp = require("sharp");
+} catch (_) {}
 
 function withTimeout(ms) {
   const controller = new AbortController();
@@ -215,6 +222,74 @@ function guessFileNameFromMime(mimeType) {
   return "image.bin";
 }
 
+// Use __dirname so PM2 cwd doesn't break logo path.
+const CLIENT_LOGO_DEFAULT_PATH = path.join(__dirname, "..", "assets", "client-logo.svg");
+
+let cachedLogoSvg = null;
+async function getClientLogoSvg() {
+  if (cachedLogoSvg !== null) return cachedLogoSvg; // may be null if missing
+  const p = (process.env.CLIENT_LOGO_PATH || CLIENT_LOGO_DEFAULT_PATH).trim();
+  try {
+    const svg = await fs.readFile(p, "utf8");
+    cachedLogoSvg = svg && svg.trim() ? svg : null;
+    return cachedLogoSvg;
+  } catch (_) {
+    cachedLogoSvg = null;
+    return null;
+  }
+}
+
+async function overlayClientLogo(blob) {
+  if (!sharp) return blob;
+  const svg = await getClientLogoSvg();
+  if (!svg) return blob;
+
+  const baseBuf = Buffer.from(await blob.arrayBuffer());
+  const base = sharp(baseBuf);
+  const meta = await base.metadata();
+  const width = meta.width || 0;
+  const height = meta.height || 0;
+  if (!width || !height) return blob;
+
+  // Logo sizing: 22% of image width, max 320px, min 160px.
+  const targetW = Math.max(160, Math.min(320, Math.round(width * 0.22)));
+  const margin = Math.max(18, Math.round(Math.min(width, height) * 0.03));
+
+  const logoPng = await sharp(Buffer.from(svg), { density: 300 })
+    .resize({ width: targetW, withoutEnlargement: true })
+    .png()
+    .toBuffer();
+
+  // Add subtle white plate behind to keep visibility on dark areas.
+  const logoMeta = await sharp(logoPng).metadata();
+  const logoW = logoMeta.width || targetW;
+  const logoH = logoMeta.height || Math.round(targetW * 0.3);
+  const platePad = Math.round(logoW * 0.14);
+  const plateRadius = Math.round(logoW * 0.08);
+  const plateW = logoW + platePad * 2;
+  const plateH = logoH + platePad * 2;
+  const plateSvg = Buffer.from(
+    `<svg width="${plateW}" height="${plateH}" xmlns="http://www.w3.org/2000/svg">` +
+      `<rect x="0" y="0" width="${plateW}" height="${plateH}" rx="${plateRadius}" ry="${plateRadius}" fill="white" fill-opacity="0.75"/>` +
+    `</svg>`
+  );
+
+  const plateLeft = Math.max(0, Math.round((width - plateW) / 2));
+  const plateTop = Math.max(0, Math.round(height - margin - plateH));
+  const logoLeft = plateLeft + platePad;
+  const logoTop = plateTop + platePad;
+
+  const composed = await base
+    .composite([
+      { input: plateSvg, top: plateTop, left: plateLeft },
+      { input: logoPng, top: logoTop, left: logoLeft }
+    ])
+    .png()
+    .toBuffer();
+
+  return new Blob([composed], { type: "image/png" });
+}
+
 module.exports = async (req, res) => {
   try {
     console.log("[kie-callback] hit", req.method, req.url);
@@ -304,7 +379,7 @@ module.exports = async (req, res) => {
       }
 
       // prefer recordInfo resultUrls
-      const blob = await kie.fetchImageAsBlob(urls[0]);
+      const blob = await overlayClientLogo(await kie.fetchImageAsBlob(urls[0]));
       const fileName = guessFileNameFromMime(blob.type);
       const form = new FormData();
       form.append("chat_id", String(chatId));
@@ -315,7 +390,7 @@ module.exports = async (req, res) => {
       return sendJson(res, 200, { ok: true });
     }
 
-    const blob = await kie.fetchImageAsBlob(resultUrl);
+    const blob = await overlayClientLogo(await kie.fetchImageAsBlob(resultUrl));
     const fileName = guessFileNameFromMime(blob.type);
     const form = new FormData();
     form.append("chat_id", String(chatId));
