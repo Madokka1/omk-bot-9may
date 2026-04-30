@@ -256,14 +256,13 @@ async function overlayClientLogo(blob) {
   const height = meta.height || 0;
   if (!width || !height) return blob;
 
-  // Add a dedicated white footer area for the logo (so it's always readable).
-  const footerH = Math.max(96, Math.round(height * 0.14));
-  const footerPadY = Math.max(18, Math.round(footerH * 0.18));
-  const footerPadX = Math.max(18, Math.round(width * 0.06));
+  // Add a compact dedicated white footer area for the logo (always readable, not huge).
+  const footerPadX = Math.max(14, Math.round(width * 0.04));
+  const footerPadY = Math.max(12, Math.round(Math.min(width, height) * 0.02));
 
-  // Logo sizing: up to 55% of width, but keep within footer height.
-  const targetW = Math.max(220, Math.min(Math.round(width * 0.55), 640));
-  const targetH = Math.max(36, footerH - footerPadY * 2);
+  // Logo sizing: keep it visible but compact.
+  const targetW = Math.max(200, Math.min(Math.round(width * 0.5), 560));
+  const targetH = Math.max(34, Math.round(height * 0.08)); // cap visual height of the logo itself
 
   const logoPng = await sharp(Buffer.from(svg), { density: 400 })
     .resize({ width: targetW, height: targetH, fit: "inside", withoutEnlargement: true })
@@ -272,12 +271,15 @@ async function overlayClientLogo(blob) {
 
   const logoMeta = await sharp(logoPng).metadata();
   const logoW = logoMeta.width || Math.min(targetW, width);
-  const logoH = logoMeta.height || Math.min(targetH, footerH);
+  const logoH = logoMeta.height || targetH;
+
+  const footerH = Math.max(logoH + footerPadY * 2, 64);
+  const footerHClamped = Math.min(footerH, 140);
 
   // Extend canvas with a white footer.
   const extended = base.extend({
     top: 0,
-    bottom: footerH,
+    bottom: footerHClamped,
     left: 0,
     right: 0,
     background: { r: 255, g: 255, b: 255, alpha: 1 }
@@ -285,7 +287,7 @@ async function overlayClientLogo(blob) {
 
   // Place logo centered within footer.
   const logoLeft = Math.max(footerPadX, Math.round((width - logoW) / 2));
-  const logoTop = Math.round(height + Math.max(0, Math.round((footerH - logoH) / 2)));
+  const logoTop = Math.round(height + Math.max(0, Math.round((footerHClamped - logoH) / 2)));
 
   const composed = await extended
     .composite([{ input: logoPng, top: logoTop, left: logoLeft }])
