@@ -215,9 +215,9 @@ function clamp01(x, fallback) {
 
 function getPromptControls() {
   // 0..1 — увеличивайте stylization/context, уменьшайте identity/realism
-  const stylization = clamp01(process.env.PROMPT_STYLIZATION, 0.85);
-  const realism = clamp01(process.env.PROMPT_REALISM, 0.15);
-  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.35);
+  const stylization = clamp01(process.env.PROMPT_STYLIZATION, 0.92);
+  const realism = clamp01(process.env.PROMPT_REALISM, 0.08);
+  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.15);
   const context = clamp01(process.env.PROMPT_CONTEXT, 0.85);
   return { stylization, realism, identity, context };
 }
