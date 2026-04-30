@@ -208,7 +208,7 @@ const SOVIET_LETTERING_BASE =
 
 const CONTROLS = {
   style_strength: 0.80,        // Увеличь до 0.85–0.92 если хочешь сильнее стиль
-  identity_preservation: 0.65, // Уменьши до 0.65–0.70 если лицо слишком фото
+  identity_preservation: 0.35, // Уменьши до 0.65–0.70 если лицо слишком фото
   texture_strength: 0.25,
   composition_change: 0.60,
   context_enforcement: 0.85
