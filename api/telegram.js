@@ -173,6 +173,13 @@ const TEXT_VARIANTS = {
 
 // ====================== SOVIET MAY DAY PROMPT SYSTEM ======================
 
+const CONTROLS = {
+  style_strength: 0.56,
+  identity_preservation: 0.44,
+  composition_change: 0.65,
+  context_enforcement: 0.85
+};
+
 // NOTE: общая база без конкретной фразы — фраза подставляется в buildSovietPromptAllowOneText().
 const SOVIET_PROMPT_COMPACT =
   "Transform this photo into a unified hand-painted Soviet May Day postcard (USSR 1950s–1970s, socialist realism). " +
@@ -190,9 +197,13 @@ const SOVIET_PROMPT_COMPACT =
   "Bright daylight, soft shadows, optimistic mood. " +
   // 🚩 контекст (сжатый, но точный)
   "Clear May Day scene: red flags (plain red, no hammer and sickle), spring flowers, festive workers, light industrial background. " +
+  // 🔴 1. ЖЁСТКИЙ КОНТРОЛЬ ФОРМАТА
+  "Final image MUST be wide horizontal (9:16). Always landscape. Never portrait. " +
+  "Build a full wide background scene first, extending left and right. " +
+  "Do NOT use the original photo aspect ratio. " +
   // 📐 композиция
-  "Vertical composition (9:16), tall framing, subject well integrated into scene. " +
-  "No thick frame or passepartout. If any border is present, keep it very thin and even (up to ~12px). " +
+  "Wide landscape composition (9:16), full-width framing, subject well integrated into the scene. " +
+  "Thin even white border on all sides. " +
   // 🚫 ограничения
   "No modern elements, no photorealism, no cartoon, no anime, no heavy stylization, no dark dramatic lighting. ";
 
@@ -210,7 +221,7 @@ function clamp01(x, fallback) {
   if (!Number.isFinite(n)) return fallback;
   if (n < 0) return 0;
   if (n > 1) return 1;
-  return n;
+  return n
 }
 
 function getPromptControls() {
@@ -259,6 +270,7 @@ function controlsPromptText() {
 
   return (
     `Controls(0..1): stylization=${c.stylization}, realism=${c.realism}, identity=${c.identity}, context=${c.context}. ` +
+    `Tuning: style_strength=${CONTROLS.style_strength}, identity_preservation=${CONTROLS.identity_preservation}, composition_change=${CONTROLS.composition_change}, context_enforcement=${CONTROLS.context_enforcement}. ` +
     repeat("FULL REPAINT.", styleEmphasis) + " " +
     strongPoster +
     hardNoPhoto +
