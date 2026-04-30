@@ -256,49 +256,37 @@ async function overlayClientLogo(blob) {
   const height = meta.height || 0;
   if (!width || !height) return blob;
 
-  // Add a compact dedicated white footer area for the logo (always readable, not huge).
-  const footerPadX = Math.max(14, Math.round(width * 0.04));
-  const footerPadY = Math.max(12, Math.round(Math.min(width, height) * 0.02));
+  // Fixed footer + paddings (px), as requested.
+  // Footer height: 40px; inner padding top/bottom: 10px; side padding: 12px.
+  const FOOTER_H = 40;
+  const PAD_Y = 10;
+  const PAD_X = 12;
+  const LOGO_H = Math.max(1, FOOTER_H - PAD_Y * 2); // 20px
+  const MAX_LOGO_W = Math.max(1, width - PAD_X * 2);
 
-  // Logo sizing: keep it visible but compact.
-  const targetW = Math.max(200, Math.min(Math.round(width * 0.5), 560));
-  const footerMaxH = 140;
-  const maxLogoH = Math.max(28, footerMaxH - footerPadY * 2);
-  const targetH = Math.max(34, Math.min(Math.round(height * 0.08), maxLogoH)); // cap visual height of the logo itself
-
-  // Render SVG -> PNG, then trim transparent padding so footer paddings are visually equal.
-  const logoPng = await sharp(Buffer.from(svg), { density: 500 })
+  // Render SVG -> PNG, trim transparent padding, then fit into the fixed box.
+  const logoPng = await sharp(Buffer.from(svg), { density: 600 })
     .png()
     .trim({ threshold: 10 })
-    .resize({ width: targetW, height: targetH, fit: "inside", withoutEnlargement: true })
+    .resize({ width: MAX_LOGO_W, height: LOGO_H, fit: "inside", withoutEnlargement: true })
     .toBuffer();
 
   const logoMeta = await sharp(logoPng).metadata();
-  const logoW = logoMeta.width || Math.min(targetW, width);
-  const logoH = logoMeta.height || targetH;
-
-  // Footer height is exactly logo height + equal paddings (top=bottom).
-  // If we need a minimum footer height, increase padding (not footer) to keep top/bottom equal.
-  const minFooterH = 64;
-  const extraPad = 6; // slightly larger footer padding for better look
-  const neededPadY = Math.max(
-    footerPadY + extraPad,
-    Math.ceil(Math.max(0, minFooterH - logoH) / 2)
-  );
-  const footerH = logoH + neededPadY * 2;
+  const logoW = logoMeta.width || Math.min(MAX_LOGO_W, width);
+  const logoH = logoMeta.height || LOGO_H;
 
   // Extend canvas with a white footer.
   const extended = base.extend({
     top: 0,
-    bottom: footerH,
+    bottom: FOOTER_H,
     left: 0,
     right: 0,
     background: { r: 255, g: 255, b: 255, alpha: 1 }
   });
 
   // Place logo centered within footer.
-  const logoLeft = Math.max(footerPadX, Math.round((width - logoW) / 2));
-  const logoTop = Math.round(height + neededPadY);
+  const logoLeft = Math.max(PAD_X, Math.round((width - logoW) / 2));
+  const logoTop = Math.round(height + PAD_Y + Math.max(0, Math.floor((LOGO_H - logoH) / 2)));
 
   const composed = await extended
     .composite([{ input: logoPng, top: logoTop, left: logoLeft }])
