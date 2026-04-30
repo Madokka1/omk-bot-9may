@@ -192,7 +192,7 @@ const SOVIET_PROMPT_COMPACT =
   "Clear May Day scene: red flags (plain red, no hammer and sickle), spring flowers, festive workers, light industrial background. " +
   // 📐 композиция
   "Vertical composition (9:16), tall framing, subject well integrated into scene. " +
-  "Thin even white border on all sides. " +
+  "No thick frame or passepartout. If any border is present, keep it very thin and even (up to ~12px). " +
   // 🚫 ограничения
   "No modern elements, no photorealism, no cartoon, no anime, no heavy stylization, no dark dramatic lighting. ";
 
@@ -643,6 +643,9 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
       input: {
         prompt: String(prompt || "").trim(),
         image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        // Force 9:16 output across all variants
+        image_size: "9:16",
+        output_format: "png",
         ...(extraJson || {})
       },
       callBackUrl
@@ -657,6 +660,8 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
       input: {
         prompt: String(prompt || "").trim(),
         image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        image_size: "9:16",
+        output_format: "png",
         ...(extraJson || {})
       },
       callBackUrl
@@ -671,6 +676,8 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
       input: {
         prompt: String(prompt || "").trim(),
         image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        image_size: "9:16",
+        output_format: "png",
         ...(extraJson || {})
       },
       callBackUrl
