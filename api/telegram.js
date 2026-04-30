@@ -230,7 +230,7 @@ function getPromptControls() {
   const stylization = clamp01(process.env.PROMPT_STYLIZATION, 0.92);
   const realism = clamp01(process.env.PROMPT_REALISM, 0.08);
   // 0.15 оказалось слишком низко — лицо меняется слишком сильно.
-  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.45);
+  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.55);
   const context = clamp01(process.env.PROMPT_CONTEXT, 0.85);
   return { stylization, realism, identity, context };
 }
