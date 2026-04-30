@@ -173,17 +173,27 @@ const TEXT_VARIANTS = {
 
 // ====================== SOVIET MAY DAY PROMPT SYSTEM ======================
 
+// NOTE: общая база без конкретной фразы — фраза подставляется в buildSovietPromptAllowOneText().
 const SOVIET_PROMPT_COMPACT =
   "Transform this photo into a unified hand-painted Soviet May Day postcard (USSR 1950s–1970s, socialist realism). " +
+  // 🔴 КРИТИЧНО — единый стиль
   "FULL repaint. Entire image must be a single cohesive painting. " +
-  "Redraw all people, faces, skin, and details in the SAME painterly style. No photo elements, no collage, no mixed media. " +
+  "Redraw all people, faces, skin, and details in the SAME painterly style. " +
+  "No photo elements, no collage, no mixed media. " +
+  // 👤 лица (без фотки, но узнаваемые)
   "Preserve identity through painterly interpretation only. Faces must be recognizable but fully painted. " +
   "Painted skin texture with soft brushwork, no photographic detail, no pores, no lens effects. " +
-  "Soviet poster illustration look (not photo): clean shapes, simplified forms, crisp outlines, flat-to-soft shading, soft idealization, natural anatomy, light heroic tone. " +
-  "Vintage palette: dominant reds, sky blue, warm skin tones, fresh greens. Bright daylight, soft shadows, optimistic mood. " +
+  // 🎨 стиль
+  "Semi-realistic Soviet painting style: clean shapes, soft idealization, natural anatomy, light heroic tone. " +
+  // 🌈 цвет и свет
+  "Vintage palette: dominant reds, sky blue, warm skin tones, fresh greens. " +
+  "Bright daylight, soft shadows, optimistic mood. " +
+  // 🚩 контекст (сжатый, но точный)
   "Clear May Day scene: red flags (plain red, no hammer and sickle), spring flowers, festive workers, light industrial background. " +
+  // 📐 композиция
   "Vertical composition (9:16), tall framing, subject well integrated into scene. " +
   "Thin even white border on all sides. " +
+  // 🚫 ограничения
   "No modern elements, no photorealism, no cartoon, no anime, no heavy stylization, no dark dramatic lighting. ";
 
 const SOVIET_LETTERING_BASE =
@@ -193,7 +203,7 @@ const SOVIET_NEGATIVE =
   "Negative: multiple texts, typography, letters, slogans, numbers, holiday greetings, new year, christmas, snow, winter, santa, gifts, " +
   "8 march, women's day, fireworks, confetti, modern posters, logos, watermark, signature, " +
   "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
-  "pasted face, face swap, photo collage, realistic skin pores, lens effects, glamour, beauty retouch, glossy skin, modern makeup, 3d render, hammer and sickle. ";
+  "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, 3d render, hammer and sickle. ";
 
 function buildSovietBase(extraContext) {
   const extra = String(extraContext || "").trim();
@@ -213,9 +223,10 @@ function buildSovietPromptAllowOneText(exactText, extraContext) {
   if (!v) return buildSovietPromptNoText(extraContext);
   return (
     buildSovietBase(extraContext) +
+    // 🧾 текст (контролируемый)
     `ALLOW ONLY ONE TEXT: '${v}'. ` +
     "Hand-painted Cyrillic brush lettering, slightly uneven, red with light outline, top center. " +
-    "No other text anywhere. If text cannot be rendered clearly, render no text. " +
+    "No other text. If text cannot be rendered clearly, render no text. " +
     SOVIET_NEGATIVE
   );
 }
@@ -550,12 +561,10 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitMayDay = async () => {
     const prompt = buildMayDayPromptMayDay();
     return await kie.createTask({
-      model: (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim(),
+      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        output_format: "png",
-        image_size: "9:16"
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
       },
       callBackUrl
     });
@@ -564,12 +573,10 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitLabor = async () => {
     const prompt = buildMayDayPromptLabor();
     return await kie.createTask({
-      model: (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim(),
+      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        output_format: "png",
-        image_size: "9:16"
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
       },
       callBackUrl
     });
@@ -578,12 +585,10 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitSpring = async () => {
     const prompt = buildMayDayPromptMetallurgists();
     return await kie.createTask({
-      model: (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim(),
+      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        output_format: "png",
-        image_size: "9:16"
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
       },
       callBackUrl
     });
@@ -630,10 +635,7 @@ async function submitKieStylizeTask({ req, chatId, userId, fileId, creditsLeft }
     model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
     input: {
       prompt: String(prompt || "").trim(),
-      image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-      // keep consistent output format across flows
-      output_format: "png",
-      image_size: "9:16"
+      image_urls: [String(inputUrl || "").trim()].filter(Boolean)
     },
     callBackUrl
   });
