@@ -256,39 +256,39 @@ async function overlayClientLogo(blob) {
   const height = meta.height || 0;
   if (!width || !height) return blob;
 
-  // Logo sizing: 22% of image width, max 320px, min 160px.
-  const targetW = Math.max(160, Math.min(320, Math.round(width * 0.22)));
-  const margin = Math.max(18, Math.round(Math.min(width, height) * 0.03));
+  // Add a dedicated white footer area for the logo (so it's always readable).
+  const footerH = Math.max(96, Math.round(height * 0.14));
+  const footerPadY = Math.max(18, Math.round(footerH * 0.18));
+  const footerPadX = Math.max(18, Math.round(width * 0.06));
 
-  const logoPng = await sharp(Buffer.from(svg), { density: 300 })
-    .resize({ width: targetW, withoutEnlargement: true })
+  // Logo sizing: up to 55% of width, but keep within footer height.
+  const targetW = Math.max(220, Math.min(Math.round(width * 0.55), 640));
+  const targetH = Math.max(36, footerH - footerPadY * 2);
+
+  const logoPng = await sharp(Buffer.from(svg), { density: 400 })
+    .resize({ width: targetW, height: targetH, fit: "inside", withoutEnlargement: true })
     .png()
     .toBuffer();
 
-  // Add subtle white plate behind to keep visibility on dark areas.
   const logoMeta = await sharp(logoPng).metadata();
-  const logoW = logoMeta.width || targetW;
-  const logoH = logoMeta.height || Math.round(targetW * 0.3);
-  const platePad = Math.round(logoW * 0.14);
-  const plateRadius = Math.round(logoW * 0.08);
-  const plateW = logoW + platePad * 2;
-  const plateH = logoH + platePad * 2;
-  const plateSvg = Buffer.from(
-    `<svg width="${plateW}" height="${plateH}" xmlns="http://www.w3.org/2000/svg">` +
-      `<rect x="0" y="0" width="${plateW}" height="${plateH}" rx="${plateRadius}" ry="${plateRadius}" fill="white" fill-opacity="0.75"/>` +
-    `</svg>`
-  );
+  const logoW = logoMeta.width || Math.min(targetW, width);
+  const logoH = logoMeta.height || Math.min(targetH, footerH);
 
-  const plateLeft = Math.max(0, Math.round((width - plateW) / 2));
-  const plateTop = Math.max(0, Math.round(height - margin - plateH));
-  const logoLeft = plateLeft + platePad;
-  const logoTop = plateTop + platePad;
+  // Extend canvas with a white footer.
+  const extended = base.extend({
+    top: 0,
+    bottom: footerH,
+    left: 0,
+    right: 0,
+    background: { r: 255, g: 255, b: 255, alpha: 1 }
+  });
 
-  const composed = await base
-    .composite([
-      { input: plateSvg, top: plateTop, left: plateLeft },
-      { input: logoPng, top: logoTop, left: logoLeft }
-    ])
+  // Place logo centered within footer.
+  const logoLeft = Math.max(footerPadX, Math.round((width - logoW) / 2));
+  const logoTop = Math.round(height + Math.max(0, Math.round((footerH - logoH) / 2)));
+
+  const composed = await extended
+    .composite([{ input: logoPng, top: logoTop, left: logoLeft }])
     .png()
     .toBuffer();
 
