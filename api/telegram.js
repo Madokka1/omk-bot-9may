@@ -244,10 +244,14 @@ function buildMayDayPromptMayDay() {
 function buildMayDayPromptLabor() {
   return (
     SOVIET_COMMON_BASE +
-    "LETTERING REQUIREMENT — CRITICAL: Large bold Cyrillic text 'Работа работой, май — по расписанию' rendered in " +
-    SOVIET_LETTERING_BASE +
-    "Red fill with gold or yellow outline. " +
-    "Placed at top center, postcard header style. DO NOT repeat text anywhere else. Bottom area must be completely clean. "
+    "Bright and light color palette, airy and cheerful, light sky blue background, soft warm tones, NO dark areas, NO shadows. " +
+    "NO PROMPT TEXT. NO captions. NO descriptions anywhere in the image. NO English text. " +
+    "LETTERING REQUIREMENT — CRITICAL: Text 'Работа работой, май — по расписанию' MUST be hand-painted, NOT a computer font. " +
+    "Render as authentic Soviet brush lettering: thick irregular strokes, slight wobble in characters, " +
+    "ink brush texture visible, letters slightly uneven in size and spacing, 1950s propaganda poster hand-lettering style. " +
+    "NOT clean, NOT digital, NOT smooth. Red fill with gold or yellow outline, rough painted edge. " +
+    "Placed at top center, large and bold. DO NOT repeat text anywhere else. " +
+    "Bottom area must be completely clean — NO text, NO captions, NO watermarks. "
   );
 }
 
