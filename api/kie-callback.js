@@ -256,19 +256,22 @@ async function overlayClientLogo(blob) {
   const height = meta.height || 0;
   if (!width || !height) return blob;
 
-  // Fixed footer + paddings (px), as requested.
-  // Footer height: 60px; logo height: 40px; bottom padding: 10px (top padding becomes 10px); side padding: 12px.
-  const FOOTER_H = 60;
+  // Footer + logo sizing based on real output dimensions.
+  // Target: when image width ≈ 1398px -> logo ≈ 600x183 (as in Figma).
   const PAD_Y = 10;
   const PAD_X = 12;
-  const LOGO_H = 40;
   const MAX_LOGO_W = Math.max(1, width - PAD_X * 2);
+  const LOGO_W_RATIO = 600 / 1398; // ≈0.429
+  const LOGO_ASPECT = 183 / 600;   // ≈0.305
+  const LOGO_W = Math.max(220, Math.min(MAX_LOGO_W, Math.round(width * LOGO_W_RATIO)));
+  const LOGO_H = Math.max(40, Math.round(LOGO_W * LOGO_ASPECT));
+  const FOOTER_H = LOGO_H + PAD_Y * 2;
 
   // Render SVG -> PNG, trim transparent padding, then fit into the fixed box.
   const logoPng = await sharp(Buffer.from(svg), { density: 600 })
     .png()
     .trim({ threshold: 10 })
-    .resize({ width: MAX_LOGO_W, height: LOGO_H, fit: "inside", withoutEnlargement: true })
+    .resize({ width: LOGO_W, height: LOGO_H, fit: "inside", withoutEnlargement: true })
     .toBuffer();
 
   const logoMeta = await sharp(logoPng).metadata();
