@@ -136,6 +136,35 @@ function isPublicFigureBlock(reason) {
   return r.includes("public figure") || r.includes("публичн") || r.includes("знаменит");
 }
 
+function translateFailureReason(reason) {
+  const raw = String(reason || "").trim();
+  const r = raw.toLowerCase();
+  if (!raw) return "";
+
+  if (r.includes("flagged as sensitive")) {
+    return (
+      "Сервис отклонил запрос как «чувствительный контент». " +
+      "Попробуйте другое фото или измените вводные данные и повторите попытку."
+    );
+  }
+
+  if (r.includes("service is currently unavailable") || r.includes("high demand") || r.includes("(e003)")) {
+    return (
+      "Сервис временно недоступен из‑за высокой нагрузки. " +
+      "Пожалуйста, попробуйте ещё раз позже."
+    );
+  }
+
+  if (r.includes("request blocked") && r.includes("public figure")) {
+    return (
+      "Запрос заблокирован: на фото распознана публичная персона (знаменитость). " +
+      "Используйте другое фото или кадрируйте/замажьте лицо публичной персоны."
+    );
+  }
+
+  return "";
+}
+
 async function refundOnFailureOnce({ taskId, userId }) {
   if (!taskId || !userId) return;
   const now = Date.now();
@@ -379,6 +408,7 @@ module.exports = async (req, res) => {
       if (state !== "success") {
         const reason = extractFailureReason(task);
         await refundOnFailureOnce({ taskId, userId });
+        const ru = translateFailureReason(reason);
         const extraHelp = isPublicFigureBlock(reason)
           ? "\n\nПохоже, на фото есть публичная персона (знаменитость) — такие запросы KIE блокирует. " +
             "Попробуйте другое фото (своё/не знаменитость) или кадрируйте/замажьте лицо публичной персоны и отправьте снова."
@@ -388,7 +418,7 @@ module.exports = async (req, res) => {
           text:
             `Не смог обработать фото.\n\n` +
             `Статус задачи: ${state || "unknown"}` +
-            (reason ? `\nПричина: ${reason.slice(0, 800)}` : "") +
+            (ru ? `\nПричина: ${ru}` : reason ? `\nПричина: ${reason.slice(0, 800)}` : "") +
             extraHelp +
             "\n\nКредит за генерацию возвращён."
         });

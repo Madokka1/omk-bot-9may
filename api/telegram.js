@@ -229,7 +229,8 @@ function getPromptControls() {
   // 0..1 — увеличивайте stylization/context, уменьшайте identity/realism
   const stylization = clamp01(process.env.PROMPT_STYLIZATION, 0.92);
   const realism = clamp01(process.env.PROMPT_REALISM, 0.08);
-  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.15);
+  // 0.15 оказалось слишком низко — лицо меняется слишком сильно.
+  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.45);
   const context = clamp01(process.env.PROMPT_CONTEXT, 0.85);
   return { stylization, realism, identity, context };
 }
@@ -256,10 +257,10 @@ function controlsPromptText() {
 
   const identityHint =
     c.identity >= 0.6
-      ? "Keep likeness strong (still fully painted). "
+      ? "CRITICAL: Keep likeness strong (still fully painted). Preserve facial features, face shape, eyes, nose, mouth proportions. "
       : c.identity <= 0.25
-        ? "Likeness is secondary to style; keep only general identity cues. Allow noticeable changes to facial details as long as the person remains generally recognizable. "
-        : "Keep recognizability balanced with style. ";
+        ? "Keep recognizability. Preserve facial structure and key features (still fully painted). "
+        : "Keep recognizability balanced with style. Preserve key facial features (still fully painted). ";
 
   const mayDayBoost =
     c.context >= 0.7
@@ -303,6 +304,8 @@ function buildSovietPromptAllowOneText(exactText, extraContext) {
     // 🧾 текст (контролируемый)
     `ALLOW ONLY ONE TEXT: '${v}'. ` +
     "Hand-painted Cyrillic brush lettering, slightly uneven, red with light outline, top center. " +
+    "CRITICAL: Place the text INSIDE the artwork/illustration area at the top, NOT on any white border/frame/margins, NOT on the bottom logo footer area. " +
+    "Do NOT put text on the white border. Do NOT place text outside the illustration. " +
     "No other text. If text cannot be rendered clearly, render no text. " +
     SOVIET_NEGATIVE
   );
