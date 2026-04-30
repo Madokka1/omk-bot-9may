@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { fetchWithAgent } = require("../lib/fetch");
 const kie = require("../lib/kie");
+const creditsStore = require("../lib/credits-store");
 
 function withTimeout(ms) {
   const controller = new AbortController();
@@ -78,6 +79,63 @@ function getResultUrlFromPayload(body) {
     body?.resultUrls;
   if (Array.isArray(arr) && typeof arr[0] === "string") return arr[0];
   return "";
+}
+
+const REFUND_GUARD_TTL_MS = 6 * 60 * 60 * 1000;
+const refundedTaskIds = new Map();
+
+function pruneRefundGuards(now) {
+  for (const [taskId, exp] of refundedTaskIds.entries()) {
+    if (!exp || exp <= now) refundedTaskIds.delete(taskId);
+  }
+}
+
+function extractFailureReason(task) {
+  if (!task || typeof task !== "object") return "";
+
+  const directCandidates = [
+    task.failReason,
+    task.fail_reason,
+    task.failMsg,
+    task.fail_msg,
+    task.error,
+    task.errorMsg,
+    task.error_msg,
+    task.message,
+    task.msg
+  ];
+  for (const c of directCandidates) {
+    if (typeof c === "string" && c.trim()) return c.trim();
+  }
+
+  const raw = task.resultJson;
+  if (raw && typeof raw === "object") {
+    const maybe = raw.error || raw.errorMsg || raw.error_msg || raw.message || raw.msg;
+    if (typeof maybe === "string" && maybe.trim()) return maybe.trim();
+  }
+  if (typeof raw === "string" && raw.trim()) {
+    try {
+      const parsed = JSON.parse(raw);
+      const maybe = parsed?.error || parsed?.errorMsg || parsed?.error_msg || parsed?.message || parsed?.msg;
+      if (typeof maybe === "string" && maybe.trim()) return maybe.trim();
+    } catch (_) {}
+  }
+
+  return "";
+}
+
+async function refundOnFailureOnce({ taskId, userId }) {
+  if (!taskId || !userId) return;
+  const now = Date.now();
+  pruneRefundGuards(now);
+  const key = String(taskId);
+  if (refundedTaskIds.has(key)) return;
+  refundedTaskIds.set(key, now + REFUND_GUARD_TTL_MS);
+  try {
+    await creditsStore.refundCredit(userId);
+  } catch (err) {
+    console.warn("[kie-callback] refund failed:", err?.message || err);
+  }
 }
 
 async function telegramApi(method, payload, { retries = 2 } = {}) {
@@ -226,9 +284,15 @@ module.exports = async (req, res) => {
       const task = await kie.getTask(taskId);
       const state = String(kie.getTaskState(task) || "").toLowerCase();
       if (state !== "success") {
+        const reason = extractFailureReason(task);
+        await refundOnFailureOnce({ taskId, userId });
         await telegramApi("sendMessage", {
           chat_id: chatId,
-          text: `Не смог обработать фото.\n\nСтатус задачи: ${state || "unknown"}`
+          text:
+            `Не смог обработать фото.\n\n` +
+            `Статус задачи: ${state || "unknown"}` +
+            (reason ? `\nПричина: ${reason.slice(0, 800)}` : "") +
+            "\n\nКредит за генерацию возвращён."
         });
         return sendJson(res, 200, { ok: true });
       }

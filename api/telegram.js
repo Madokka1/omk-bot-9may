@@ -560,17 +560,15 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitNoText = async () => {
     const prompt = buildMayDayPromptNoText();
-    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "nano-banana-2").trim();
-    const extraInput = { output_format: "png", resolution: "2K", aspect_ratio: "16:9" };
+    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-2-edit").trim();
     return await kie.createTask({
       model: nanoBananaModel,
       input: {
         prompt: String(prompt || "").trim(),
-        // KIE market models are inconsistent: some expect `image_urls`, others `image_input`.
-        // Send both to stay compatible.
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
         image_input: [String(inputUrl || "").trim()].filter(Boolean),
-        ...extraInput
+        aspect_ratio: "16:9",
+        resolution: "2K",
+        output_format: "png"
       },
       callBackUrl
     });
