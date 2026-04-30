@@ -267,18 +267,25 @@ async function overlayClientLogo(blob) {
   const LOGO_H = Math.max(40, Math.round(LOGO_W * LOGO_ASPECT));
   const FOOTER_H = LOGO_H + PAD_Y * 2;
 
-  // Render SVG -> PNG, trim transparent padding, resize, then trim again.
-  // Second trim helps remove anti-aliased transparent edges after resize.
-  const logoPng = await sharp(Buffer.from(svg), { density: 700 })
+  // Render SVG -> PNG, trim, resize to fit, then place into a fixed-size transparent box.
+  // This guarantees visually equal top/bottom padding inside the footer.
+  const logoInner = await sharp(Buffer.from(svg), { density: 700 })
     .png()
-    .trim({ threshold: 12 })
+    .trim({ threshold: 18 })
     .resize({ width: LOGO_W, height: LOGO_H, fit: "inside", withoutEnlargement: true })
-    .trim({ threshold: 28 })
     .toBuffer();
 
-  const logoMeta = await sharp(logoPng).metadata();
-  const logoW = logoMeta.width || Math.min(MAX_LOGO_W, width);
-  const logoH = logoMeta.height || LOGO_H;
+  const logoBox = await sharp({
+    create: {
+      width: LOGO_W,
+      height: LOGO_H,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 }
+    }
+  })
+    .composite([{ input: logoInner, gravity: "center" }])
+    .png()
+    .toBuffer();
 
   // Extend canvas with a white footer.
   const extended = base.extend({
@@ -290,11 +297,11 @@ async function overlayClientLogo(blob) {
   });
 
   // Place logo centered within footer.
-  const logoLeft = Math.max(PAD_X, Math.round((width - logoW) / 2));
-  const logoTop = Math.round(height + Math.max(0, Math.floor((FOOTER_H - logoH) / 2)));
+  const logoLeft = Math.max(PAD_X, Math.round((width - LOGO_W) / 2));
+  const logoTop = Math.round(height + PAD_Y);
 
   const composed = await extended
-    .composite([{ input: logoPng, top: logoTop, left: logoLeft }])
+    .composite([{ input: logoBox, top: logoTop, left: logoLeft }])
     .png()
     .toBuffer();
 
