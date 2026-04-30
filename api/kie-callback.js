@@ -262,7 +262,9 @@ async function overlayClientLogo(blob) {
 
   // Logo sizing: keep it visible but compact.
   const targetW = Math.max(200, Math.min(Math.round(width * 0.5), 560));
-  const targetH = Math.max(34, Math.round(height * 0.08)); // cap visual height of the logo itself
+  const footerMaxH = 140;
+  const maxLogoH = Math.max(28, footerMaxH - footerPadY * 2);
+  const targetH = Math.max(34, Math.min(Math.round(height * 0.08), maxLogoH)); // cap visual height of the logo itself
 
   const logoPng = await sharp(Buffer.from(svg), { density: 400 })
     .resize({ width: targetW, height: targetH, fit: "inside", withoutEnlargement: true })
@@ -273,8 +275,8 @@ async function overlayClientLogo(blob) {
   const logoW = logoMeta.width || Math.min(targetW, width);
   const logoH = logoMeta.height || targetH;
 
-  const footerH = Math.max(logoH + footerPadY * 2, 64);
-  const footerHClamped = Math.min(footerH, 140);
+  // Footer height is exactly logo height + equal paddings (top=bottom).
+  const footerHClamped = Math.max(logoH + footerPadY * 2, 64);
 
   // Extend canvas with a white footer.
   const extended = base.extend({
@@ -287,7 +289,7 @@ async function overlayClientLogo(blob) {
 
   // Place logo centered within footer.
   const logoLeft = Math.max(footerPadX, Math.round((width - logoW) / 2));
-  const logoTop = Math.round(height + Math.max(0, Math.round((footerHClamped - logoH) / 2)));
+  const logoTop = Math.round(height + footerPadY);
 
   const composed = await extended
     .composite([{ input: logoPng, top: logoTop, left: logoLeft }])
