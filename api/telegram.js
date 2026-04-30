@@ -190,6 +190,9 @@ const SOVIET_PROMPT_COMPACT =
   // 🧍 анатомия — без артефактов
   "Anatomy must be correct. CRITICAL: exactly two arms/hands per person, no extra arms, no extra hands, no duplicated limbs. " +
   "Hands must have normal realistic finger count (5 fingers). No extra fingers. " +
+  // 📏 масштаб — без «великанов»
+  "Scale must be realistic. The main person must be normal human size, proportionate to the environment and other people. " +
+  "CRITICAL: no giant person, no oversized head/body, no extreme foreground scale. " +
   // 👤 лица (без фотки, но узнаваемые)
   "Preserve identity through painterly interpretation only. Faces must be recognizable but fully painted. " +
   "Painted skin texture with soft brushwork, no photographic detail, no pores, no lens effects. " +
@@ -215,7 +218,8 @@ const SOVIET_NEGATIVE =
   "8 march, women's day, fireworks, confetti, modern posters, logos, watermark, signature, " +
   "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
   "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, 3d render, hammer and sickle, " +
-  "extra arms, extra hands, extra fingers, missing fingers, fused fingers, deformed hands, duplicated limbs, bad anatomy. ";
+  "extra arms, extra hands, extra fingers, missing fingers, fused fingers, deformed hands, duplicated limbs, bad anatomy, " +
+  "giant, gigantic person, oversized body, oversized head, extreme scale, tiny background people. ";
 
 function clamp01(x, fallback) {
   const n = Number(x);
