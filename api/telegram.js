@@ -560,13 +560,13 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitNoText = async () => {
     const prompt = buildMayDayPromptNoText();
-    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
-    const extraInput = { output_format: "png", image_size: "1:1" };
+    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "nano-banana-2").trim();
+    const extraInput = { output_format: "png", resolution: "2K", aspect_ratio: "16:9" };
     return await kie.createTask({
       model: nanoBananaModel,
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        image_input: [String(inputUrl || "").trim()].filter(Boolean),
         ...extraInput
       },
       callBackUrl
