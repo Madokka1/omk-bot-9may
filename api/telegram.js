@@ -309,6 +309,97 @@ function clearPending(chatId) {
   pendingByChatId.delete(String(chatId));
 }
 
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+const sessionByChatId = new Map();
+
+function pruneSessions(now) {
+  for (const [chatId, entry] of sessionByChatId.entries()) {
+    if (!entry || typeof entry.expiresAt !== "number" || entry.expiresAt <= now) sessionByChatId.delete(chatId);
+  }
+}
+
+function getSession(chatId, now) {
+  pruneSessions(now);
+  const key = String(chatId);
+  const existing = sessionByChatId.get(key);
+  if (existing && typeof existing === "object") {
+    existing.expiresAt = now + SESSION_TTL_MS;
+    if (!Array.isArray(existing.stack)) existing.stack = [];
+    if (!Array.isArray(existing.cleanupMessageIds)) existing.cleanupMessageIds = [];
+    return existing;
+  }
+  const fresh = {
+    expiresAt: now + SESSION_TTL_MS,
+    stack: [],
+    current: { screen: "main_menu" },
+    cleanupMessageIds: []
+  };
+  sessionByChatId.set(key, fresh);
+  return fresh;
+}
+
+async function safeDeleteMessage(chatId, messageId) {
+  if (!chatId || !messageId) return;
+  try {
+    await telegramApi("deleteMessage", { chat_id: chatId, message_id: messageId }, { retries: 0 });
+  } catch (_) {
+    // ignore (no rights / already deleted / too old)
+  }
+}
+
+async function cleanupScreenMessages(chatId, session) {
+  const ids = Array.isArray(session?.cleanupMessageIds) ? session.cleanupMessageIds.slice(0, 20) : [];
+  session.cleanupMessageIds = [];
+  for (const id of ids) await safeDeleteMessage(chatId, id);
+}
+
+async function sendScreenMessage(chatId, session, payload) {
+  const sent = await telegramApi("sendMessage", { chat_id: chatId, ...payload });
+  if (sent?.message_id) session.cleanupMessageIds = [sent.message_id];
+  return sent;
+}
+
+async function renderScreen({ chatId, session, screen, variantText }) {
+  await cleanupScreenMessages(chatId, session);
+
+  if (screen === "main_menu") {
+    session.current = { screen: "main_menu" };
+    await sendScreenMessage(chatId, session, { text: "Выберите действие:", reply_markup: mainMenuReplyMarkup() });
+    return;
+  }
+
+  if (screen === "generation_variants") {
+    session.current = { screen: "generation_variants" };
+    await sendScreenMessage(chatId, session, { text: "Выбери вариант генерации:", reply_markup: generationVariantsReplyMarkup() });
+    return;
+  }
+
+  if (screen === "variant_photo_request") {
+    session.current = { screen: "variant_photo_request", variantText: String(variantText || "").trim() };
+    await sendScreenMessage(chatId, session, { text: "Отправьте вашу фотографию.", reply_markup: backOnlyReplyMarkup() });
+    return;
+  }
+
+  if (screen === "style_photo_request") {
+    const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
+    session.current = { screen: "style_photo_request" };
+    await sendScreenMessage(chatId, session, {
+      text:
+        "Пришли фото, я обработаю его в стиле:\n" +
+        stylePrompt +
+        "\n\nМожно просто отправить фото следующим сообщением.",
+      reply_markup: mainMenuReplyMarkup()
+    });
+    return;
+  }
+
+  if (screen === "partners") {
+    session.current = { screen: "partners" };
+    await sendScreenMessage(chatId, session, { text: partnersText(), reply_markup: mainMenuReplyMarkup() });
+    return;
+  }
+}
+
 function parseRequiredChannels() {
   const raw = (process.env.REQUIRED_CHANNELS || "").trim();
   if (!raw) return [];
@@ -591,6 +682,7 @@ module.exports = async (req, res) => {
       const chatId = message.chat.id;
       const now = Date.now();
       const userId = message?.from?.id;
+      const session = getSession(chatId, now);
 
       // Text handling
       if (typeof message.text === "string") {
@@ -600,13 +692,18 @@ module.exports = async (req, res) => {
           const botInfo = await getBotInfo();
           const botName = botInfo?.first_name || botInfo?.username || "бот";
           const rulesText = getStartRulesText();
-          await telegramApi("sendMessage", {
+          await cleanupScreenMessages(chatId, session);
+          const sent = await telegramApi("sendMessage", {
             chat_id: chatId,
-            text: `<b>Привет! Это бот Объединённой металлургической компании</b>\n\n` +
-        `Этот бот создан специально к празднику весны и труда! С помощью нейросетей мы поможем вам преобразить ваши снимки: просто загрузите фото, и искусственный интеллект мгновенно перерисует его в уникальной <b>первомайской стилистике</b>.`,
+            text: `<b>Привет! Это ОМК 🤍</b>\n\n` +
+            `Поздравляем вас с праздником весны и труда! 🌸\n\n` +
+            `Мы приготовили кое-что особенное: загружай своё фото, и нейросеть превратит его в настоящий праздничный портрет. Попробуй — и сохрани на память о празднике.`,
             parse_mode: "HTML",
             reply_markup: mainMenuReplyMarkup()
           });
+          session.stack = [];
+          session.current = { screen: "main_menu" };
+          session.cleanupMessageIds = sent?.message_id ? [sent.message_id] : [];
         } else if (text.trim() === "Сгенерировать") {
           if (!userId) {
             await telegramApi("sendMessage", { chat_id: chatId, text: "Не вижу user_id :(" });
@@ -628,11 +725,8 @@ module.exports = async (req, res) => {
                 await telegramApi("sendMessage", { chat_id: chatId, text: noCreditsText(), reply_markup: mainMenuReplyMarkup() });
                 return;
               }
-              await telegramApi("sendMessage", {
-                chat_id: chatId,
-                text: "Выбери вариант генерации:",
-                reply_markup: generationVariantsReplyMarkup()
-              });
+              session.stack.push(session.current);
+              await renderScreen({ chatId, session, screen: "generation_variants" });
             }
           }
         } else if (parseCommand(text, "img") !== null) {
@@ -649,35 +743,28 @@ module.exports = async (req, res) => {
                 return;
               }
               setPending(chatId, now, { mode: "style_photo" });
-              const stylePrompt = (process.env.IMG_STYLE_PROMPT || "В мире дикой природы").trim();
-              await telegramApi("sendMessage", {
-                chat_id: chatId,
-                text:
-                  "Пришли фото, я обработаю его в стиле:\n" +
-                  stylePrompt +
-                  "\n\nМожно просто отправить фото следующим сообщением.",
-                reply_markup: mainMenuReplyMarkup()
-              });
+              session.stack.push(session.current);
+              await renderScreen({ chatId, session, screen: "style_photo_request" });
             }
           }
         } else if (text.trim() === "Партнеры") {
-          await telegramApi("sendMessage", {
-            chat_id: chatId,
-            text: partnersText(),
-            reply_markup: mainMenuReplyMarkup()
-          });
+          session.stack.push(session.current);
+          await renderScreen({ chatId, session, screen: "partners" });
         } else if (text.trim() === "Назад") {
-          const pending = getPending(chatId, now);
           clearPending(chatId);
-          if (pending?.mode === "variant_photo") {
-            await telegramApi("sendMessage", {
-              chat_id: chatId,
-              text: "Выбери вариант генерации:",
-              reply_markup: generationVariantsReplyMarkup()
-            });
-          } else {
-            await telegramApi("sendMessage", { chat_id: chatId, text: "Ок.", reply_markup: mainMenuReplyMarkup() });
+          await safeDeleteMessage(chatId, message?.message_id);
+
+          const prev = session.stack.pop();
+          const target = prev?.screen ? prev : { screen: "main_menu" };
+
+          // Restore pending flow depending on the screen we return to.
+          if (target.screen === "variant_photo_request") {
+            setPending(chatId, now, { mode: "variant_photo", variantText: String(target.variantText || "").trim() });
+          } else if (target.screen === "style_photo_request") {
+            setPending(chatId, now, { mode: "style_photo" });
           }
+
+          await renderScreen({ chatId, session, screen: target.screen, variantText: target.variantText });
         } else if (isGenerationVariant(text)) {
           if (!userId) {
             await telegramApi("sendMessage", { chat_id: chatId, text: "Не вижу user_id :(" });
@@ -692,11 +779,8 @@ module.exports = async (req, res) => {
                 return;
               }
               setPending(chatId, now, { mode: "variant_photo", variantText: String(text).trim() });
-              await telegramApi("sendMessage", {
-                chat_id: chatId,
-                text: "Отправьте вашу фотографию.",
-                reply_markup: backOnlyReplyMarkup()
-              });
+              session.stack.push(session.current);
+              await renderScreen({ chatId, session, screen: "variant_photo_request", variantText: String(text).trim() });
             }
           }
         } else {
