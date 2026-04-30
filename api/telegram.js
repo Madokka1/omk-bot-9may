@@ -428,7 +428,7 @@ function parseRequiredChannels() {
 
 function getRequiredPartnerChannels() {
   // Keep this list in sync with partnersText(), so the UI matches the real checks.
-  const staticPartners = ["@codeeeeeeeeasd"];
+  const staticPartners = ["@omk_career", "@omk_official"];
   return Array.from(new Set([...staticPartners, ...parseRequiredChannels()]));
 }
 
