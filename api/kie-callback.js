@@ -276,12 +276,18 @@ async function overlayClientLogo(blob) {
   const logoH = logoMeta.height || targetH;
 
   // Footer height is exactly logo height + equal paddings (top=bottom).
-  const footerHClamped = Math.max(logoH + footerPadY * 2, 64);
+  // If we need a minimum footer height, increase padding (not footer) to keep top/bottom equal.
+  const minFooterH = 64;
+  const neededPadY = Math.max(
+    footerPadY,
+    Math.ceil(Math.max(0, minFooterH - logoH) / 2)
+  );
+  const footerH = logoH + neededPadY * 2;
 
   // Extend canvas with a white footer.
   const extended = base.extend({
     top: 0,
-    bottom: footerHClamped,
+    bottom: footerH,
     left: 0,
     right: 0,
     background: { r: 255, g: 255, b: 255, alpha: 1 }
@@ -289,7 +295,7 @@ async function overlayClientLogo(blob) {
 
   // Place logo centered within footer.
   const logoLeft = Math.max(footerPadX, Math.round((width - logoW) / 2));
-  const logoTop = Math.round(height + footerPadY);
+  const logoTop = Math.round(height + neededPadY);
 
   const composed = await extended
     .composite([{ input: logoPng, top: logoTop, left: logoLeft }])

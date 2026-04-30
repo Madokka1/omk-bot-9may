@@ -186,7 +186,7 @@ const SOVIET_PROMPT_COMPACT =
   // 🔴 КРИТИЧНО — единый стиль
   "FULL repaint. Entire image must be a single cohesive painting. " +
   "Redraw all people, faces, skin, and details in the SAME painterly style. " +
-  "No photo elements, no collage, no mixed media. " +
+  "No photo elements, no collage, no mixed media. NO split panels. NO diptych. NO two frames. ONLY ONE single scene in ONE frame. " +
   // 👤 лица (без фотки, но узнаваемые)
   "Preserve identity through painterly interpretation only. Faces must be recognizable but fully painted. " +
   "Painted skin texture with soft brushwork, no photographic detail, no pores, no lens effects. " +
@@ -197,13 +197,10 @@ const SOVIET_PROMPT_COMPACT =
   "Bright daylight, soft shadows, optimistic mood. " +
   // 🚩 контекст (сжатый, но точный)
   "Clear May Day scene: red flags (plain red, no hammer and sickle), spring flowers, festive workers, light industrial background. " +
-  // 🔴 1. ЖЁСТКИЙ КОНТРОЛЬ ФОРМАТА
-  "Final image MUST be wide horizontal (9:16). Always landscape. Never portrait. " +
-  "Build a full wide background scene first, extending left and right. " +
-  "Do NOT use the original photo aspect ratio. " +
   // 📐 композиция
-  "Wide landscape composition (9:16), full-width framing, subject well integrated into the scene. " +
-  "Thin even white border on all sides. " +
+  "Final image MUST be vertical portrait (9:16). Always portrait. Never landscape. " +
+  "Tall framing, subject well integrated into the scene. " +
+  "Thin even white border on all sides. No thick frame. " +
   // 🚫 ограничения
   "No modern elements, no photorealism, no cartoon, no anime, no heavy stylization, no dark dramatic lighting. ";
 
