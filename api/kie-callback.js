@@ -131,6 +131,11 @@ function extractFailureReason(task) {
   return "";
 }
 
+function isPublicFigureBlock(reason) {
+  const r = String(reason || "").toLowerCase();
+  return r.includes("public figure") || r.includes("публичн") || r.includes("знаменит");
+}
+
 async function refundOnFailureOnce({ taskId, userId }) {
   if (!taskId || !userId) return;
   const now = Date.now();
@@ -361,12 +366,17 @@ module.exports = async (req, res) => {
       if (state !== "success") {
         const reason = extractFailureReason(task);
         await refundOnFailureOnce({ taskId, userId });
+        const extraHelp = isPublicFigureBlock(reason)
+          ? "\n\nПохоже, на фото есть публичная персона (знаменитость) — такие запросы KIE блокирует. " +
+            "Попробуйте другое фото (своё/не знаменитость) или кадрируйте/замажьте лицо публичной персоны и отправьте снова."
+          : "";
         await telegramApi("sendMessage", {
           chat_id: chatId,
           text:
             `Не смог обработать фото.\n\n` +
             `Статус задачи: ${state || "unknown"}` +
             (reason ? `\nПричина: ${reason.slice(0, 800)}` : "") +
+            extraHelp +
             "\n\nКредит за генерацию возвращён."
         });
         return sendJson(res, 200, { ok: true });
