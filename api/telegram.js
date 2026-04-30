@@ -566,6 +566,9 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
       model: nanoBananaModel,
       input: {
         prompt: String(prompt || "").trim(),
+        // KIE market models are inconsistent: some expect `image_urls`, others `image_input`.
+        // Send both to stay compatible.
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
         image_input: [String(inputUrl || "").trim()].filter(Boolean),
         ...extraInput
       },
