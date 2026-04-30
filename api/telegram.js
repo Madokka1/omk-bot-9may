@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { fetchWithAgent } = require("../lib/fetch");
 const kie = require("../lib/kie");
+const creditsStore = require("../lib/credits-store");
 
 function getJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -450,36 +451,21 @@ function pleaseSubscribeText() {
 }
 
 const INITIAL_GENERATIONS = Number(process.env.INITIAL_GENERATIONS || 3);
-const generationCreditsByUserId = new Map();
 
-function ensureGenerationCredits(userId) {
-  const key = String(userId);
-  if (!generationCreditsByUserId.has(key)) {
-    generationCreditsByUserId.set(key, Number.isFinite(INITIAL_GENERATIONS) ? INITIAL_GENERATIONS : 3);
-    return { granted: true, credits: generationCreditsByUserId.get(key) };
-  }
-  return { granted: false, credits: generationCreditsByUserId.get(key) };
+async function ensureGenerationCredits(userId) {
+  return await creditsStore.ensureUserCredits(userId, Number.isFinite(INITIAL_GENERATIONS) ? INITIAL_GENERATIONS : 3);
 }
 
-function getGenerationCredits(userId) {
-  return generationCreditsByUserId.get(String(userId)) ?? 0;
+async function getGenerationCredits(userId) {
+  return await creditsStore.getCredits(userId);
 }
 
-function spendGenerationCredit(userId) {
-  const key = String(userId);
-  const current = getGenerationCredits(key);
-  if (current <= 0) return 0;
-  const next = current - 1;
-  generationCreditsByUserId.set(key, next);
-  return next;
+async function spendGenerationCredit(userId) {
+  return await creditsStore.spendCredit(userId);
 }
 
-function refundGenerationCredit(userId) {
-  const key = String(userId);
-  const current = getGenerationCredits(key);
-  const next = current + 1;
-  generationCreditsByUserId.set(key, next);
-  return next;
+async function refundGenerationCredit(userId) {
+  return await creditsStore.refundCredit(userId);
 }
 
 function noCreditsText() {
@@ -709,7 +695,7 @@ module.exports = async (req, res) => {
             if (!subs.ok) {
               await telegramApi("sendMessage", { chat_id: chatId, text: pleaseSubscribeText(), reply_markup: mainMenuReplyMarkup() });
             } else {
-              const { granted } = ensureGenerationCredits(userId);
+              const { granted } = await ensureGenerationCredits(userId);
               if (granted) {
                 await telegramApi("sendMessage", {
                   chat_id: chatId,
@@ -718,7 +704,7 @@ module.exports = async (req, res) => {
                 });
               }
 
-              if (getGenerationCredits(userId) <= 0) {
+              if ((await getGenerationCredits(userId)) <= 0) {
                 await telegramApi("sendMessage", { chat_id: chatId, text: noCreditsText(), reply_markup: mainMenuReplyMarkup() });
                 return;
               }
@@ -734,8 +720,8 @@ module.exports = async (req, res) => {
             if (!subs.ok) {
               await telegramApi("sendMessage", { chat_id: chatId, text: pleaseSubscribeText(), reply_markup: mainMenuReplyMarkup() });
             } else {
-              ensureGenerationCredits(userId);
-              if (getGenerationCredits(userId) <= 0) {
+              await ensureGenerationCredits(userId);
+              if ((await getGenerationCredits(userId)) <= 0) {
                 await telegramApi("sendMessage", { chat_id: chatId, text: noCreditsText(), reply_markup: mainMenuReplyMarkup() });
                 return;
               }
@@ -774,8 +760,8 @@ module.exports = async (req, res) => {
             if (!subs.ok) {
               await telegramApi("sendMessage", { chat_id: chatId, text: pleaseSubscribeText(), reply_markup: mainMenuReplyMarkup() });
             } else {
-              ensureGenerationCredits(userId);
-              if (getGenerationCredits(userId) <= 0) {
+              await ensureGenerationCredits(userId);
+              if ((await getGenerationCredits(userId)) <= 0) {
                 await telegramApi("sendMessage", { chat_id: chatId, text: noCreditsText(), reply_markup: mainMenuReplyMarkup() });
                 return;
               }
@@ -822,7 +808,7 @@ module.exports = async (req, res) => {
 
           let left = null;
           try {
-            left = spendGenerationCredit(userId);
+            left = await spendGenerationCredit(userId);
             if (pending.mode === "variant_photo") {
               await submitKieEditTask({
                 req,
@@ -844,7 +830,7 @@ module.exports = async (req, res) => {
             console.error("kie submit failed:", err);
             try {
               // refund only if we computed creditsLeft (meaning we successfully decremented or at least attempted to).
-              if (left !== null) refundGenerationCredit(userId);
+              if (left !== null) await refundGenerationCredit(userId);
             } catch (_) {}
             await telegramApi("sendMessage", {
               chat_id: chatId,
