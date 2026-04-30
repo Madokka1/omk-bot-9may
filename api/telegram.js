@@ -255,8 +255,10 @@ function buildMayDayPromptLabor() {
 function buildMayDayPromptSpring() {
   return (
     "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+    SOVIET_REPAINT +
     "1950s Soviet industrial poster aesthetic, socialist realism, monumental and heroic. " +
-    "Powerful metallurgical background: blast furnace silhouettes, glowing molten metal, sparks, combined with May Day red banners. " +
+    "Painted illustration style: flat areas of color, strong outlines, poster-like rendering, NO photorealism. " +
+    "Powerful metallurgical background painted in poster style: blast furnace silhouettes, glowing molten metal, sparks, May Day red banners. " +
     SOVIET_SUBJECT +
     SOVIET_FINISH +
     "Subjects should look proud and strong, fitting the heroic metallurgist archetype. " +
