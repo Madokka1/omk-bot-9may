@@ -174,22 +174,26 @@ const TEXT_VARIANTS = {
 // ── Базовые блоки ────────────────────────────────────────────────────
 
 const SOVIET_REPAINT = 
-  "REPAINT this photo entirely as a painted illustration in authentic Soviet style. " +
-  "Fully redraw the person and the entire background in consistent painted style. NO face pasting, NO collage.";
+  "REPAINT this photo COMPLETELY as a traditional painted illustration in authentic Soviet style. " +
+  "Do NOT cut out or paste the original face. Do NOT do face swap. " +
+  "Fully redraw the entire person (face, hair, skin, clothing, hands, body) and background from scratch in the same painted art style. " +
+  "No photorealistic elements, no collage, no pasted photo parts. Everything must be painted consistently.";
 
 const SOVIET_STYLE_BASE = 
   "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s, socialist realism, bright spring optimism. " +
   "Red flags and banners (mostly blank), white doves, abundant spring flowers (tulips, lilac, cherry blossoms), festive atmosphere. " +
-  "Semi-realistic Soviet painting style with soft idealization, clean edges, warm and heroic but natural look. " +
+  "Semi-realistic Soviet painting style with soft idealization, clean edges, warm and slightly heroic but natural look. " +
   "Vibrant yet harmonious vintage color palette: dominant reds, bright sky blue, warm sunlight, fresh greens.";
 
 const SOVIET_SUBJECT = 
-  "Carefully preserve the exact facial features, identity, proportions, eye color, hairstyle and likeness of the person from the reference photo. High recognizability is critical.";
+  "Carefully preserve the exact facial features, identity, eye shape, eye color, nose, lips, hairstyle and overall likeness of the woman from the reference photo. " +
+  "High recognizability is critical, but she must look like a painted illustration, not a photograph.";
 
 const SOVIET_BACKGROUND = 
-  "Create a rich, detailed and UNIQUE background specifically tailored to this image and the person. " +
-  "Do NOT use generic, repetitive or template backgrounds. Vary the scene strongly: metallurgical plant with factories, cranes, pipes and machinery, bustling May Day demonstration with crowd and flags, industrial workshop interior, blooming spring park combined with Soviet industrial elements, etc. " +
-  "Add depth, perspective and interesting Soviet-era details. Make every background feel different and contextually appropriate.";
+  "Create a rich, detailed and UNIQUE background tailored to this image. " +
+  "Strongly vary the scene: large metallurgical plant with factories, chimneys, cranes, pipes, industrial structures in the background, " +
+  "crowd of workers with red flags, blooming spring trees and flowers in foreground. Add depth and perspective. " +
+  "Make the background feel alive and different from previous images.";
 
 const SOVIET_FINISH = 
   "Subtle vintage print texture, light grain, soft postcard finish. Bright daylight, soft optimistic lighting. No harsh shadows.";
@@ -201,18 +205,19 @@ const OUTPUT_FORMAT =
 
 const SOVIET_LETTERING_BASE = 
   "authentic Soviet hand-lettered brush display type — thick uneven strokes, bold characters, " +
-  "slightly imperfect hand-crafted feel, reminiscent of 1950s–1960s Soviet poster brush lettering. " +
-  "NOT a modern font. NOT digital. NOT smooth. Visible brush texture and slight natural wobble.";
+  "slightly imperfect hand-crafted feel, 1950s–1960s Soviet poster brush lettering style. " +
+  "NOT modern, NOT digital, NOT smooth. Visible brush texture and slight wobble.";
 
-// ── Негативный промпт ───────────────────────────────────────────────
+// ── Негатив ─────────────────────────────────────────────────────────
 const SOVIET_NEGATIVE = 
-  "generic background, repetitive background, same background, template background, empty background, flat background, " +
-  "logo, watermark, signature, text at bottom, photorealism, modern elements, dark shadows, oversaturated colors, " +
-  "distorted face, deformed hands, low detail background";
+  "photorealistic face, pasted face, cut out face, photo collage, face swap, realistic skin texture, " +
+  "generic background, repetitive background, same background, flat background, low detail background, " +
+  "logo, watermark, signature, text at bottom, modern elements, dark shadows, oversaturated colors, " +
+  "distorted hands, deformed anatomy";
 
 // ── Общая база ──────────────────────────────────────────────────────
 const SOVIET_COMMON_BASE = 
-  "Transform this reference photo into an authentic Soviet May Day postcard in 9:16 vertical format. " +
+  "Transform this reference photo into an authentic Soviet May Day postcard illustration in 9:16 vertical format. " +
   SOVIET_REPAINT +
   SOVIET_STYLE_BASE +
   SOVIET_SUBJECT +
