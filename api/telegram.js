@@ -172,6 +172,10 @@ const TEXT_VARIANTS = {
 };
 
 // ── Базовые блоки промптов ────────────────────────────────────────────────────
+const SOVIET_REPAINT =
+  "REPAINT this photo entirely as a painted illustration. " +
+  "Do NOT paste or cut out the original face/person onto a new background. " +
+  "Fully redraw all people in the same painting style as the background. NO photo collage. NO photorealistic face pasted over illustration. ";
 
 const SOVIET_STYLE_BASE =
   "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s, International Workers' Day, socialist realism, " +
@@ -207,16 +211,11 @@ const SOVIET_NEGATIVE =
 
 const SOVIET_COMMON_BASE =
   "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+  SOVIET_REPAINT + 
   SOVIET_STYLE_BASE +
   SOVIET_SUBJECT +
   SOVIET_FINISH +
-  SOVIET_REPAINT +
   OUTPUT_FORMAT;
-
-const SOVIET_REPAINT =
-  "REPAINT this photo entirely as a painted illustration. " +
-  "Do NOT paste or cut out the original face/person onto a new background. " +
-  "Fully redraw all people in the same painting style as the background. NO photo collage. NO photorealistic face pasted over illustration. ";
 
 
 // ── Промпты ───────────────────────────────────────────────────────────────────
