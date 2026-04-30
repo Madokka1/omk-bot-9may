@@ -360,8 +360,6 @@ async function sendScreenMessage(chatId, session, payload) {
 }
 
 async function renderScreen({ chatId, session, screen, variantText }) {
-  await cleanupScreenMessages(chatId, session);
-
   if (screen === "main_menu") {
     session.current = { screen: "main_menu" };
     await sendScreenMessage(chatId, session, { text: "Выберите действие:", reply_markup: mainMenuReplyMarkup() });
@@ -692,7 +690,6 @@ module.exports = async (req, res) => {
           const botInfo = await getBotInfo();
           const botName = botInfo?.first_name || botInfo?.username || "бот";
           const rulesText = getStartRulesText();
-          await cleanupScreenMessages(chatId, session);
           const sent = await telegramApi("sendMessage", {
             chat_id: chatId,
             text: `<b>Привет! Это ОМК 🤍</b>\n\n` +
@@ -754,7 +751,11 @@ module.exports = async (req, res) => {
           clearPending(chatId);
           await safeDeleteMessage(chatId, message?.message_id);
 
-          const prev = session.stack.pop();
+          // Delete bot's current "screen message" ONLY on Back, and only if we actually go back.
+          const canGoBack = Array.isArray(session.stack) && session.stack.length > 0;
+          if (canGoBack) await cleanupScreenMessages(chatId, session);
+
+          const prev = canGoBack ? session.stack.pop() : null;
           const target = prev?.screen ? prev : { screen: "main_menu" };
 
           // Restore pending flow depending on the screen we return to.
@@ -837,7 +838,7 @@ module.exports = async (req, res) => {
             }
             await telegramApi("sendMessage", {
               chat_id: chatId,
-              text: "Задача запущена. Как будет готово, пришлю изображение."
+              text: "Задача запущена. Совсем скоро пришлю изображение."
             });
           } catch (err) {
             console.error("kie submit failed:", err);
