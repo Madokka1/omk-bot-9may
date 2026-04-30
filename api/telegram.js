@@ -171,104 +171,107 @@ const TEXT_VARIANTS = {
   SPRING:  "Товарищи-металлурги, с праздником!",
 };
 
-// ── Базовые блоки (основаны на твоём идеальном JSON) ─────────────────────
+// ====================== SOVIET MAY DAY PROMPT SYSTEM ======================
 
 const SOVIET_REPAINT = 
-  "REPAINT this photo entirely as a painted illustration in authentic Soviet May Day postcard style. " +
-  "Fully redraw the person and background in consistent painted style. NO face pasting, NO collage.";
+  "REPAINT this photo entirely as a painted illustration. " +
+  "Fully redraw the entire person (face, skin, hair, clothing, hands, body) and background in consistent Soviet painting style. " +
+  "NO face pasting, NO collage, NO photorealistic face on illustration.";
 
-const SOVIET_STYLE_BASE = 
+const SOVIET_BASE_STYLE = 
   "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s, International Workers' Day, socialist realism, " +
-  "праздничная демонстрация, весенний оптимизм. " +
-  "Semi-realistic Soviet painting style, simplified forms, clean edges, soft idealization of faces, slightly heroic but natural look. " +
+  "праздничная демонстрация, весенний оптимизм. ";
+
+const SOVIET_RENDERING = 
+  "Semi-realistic Soviet painting style, simplified forms, clean edges, soft idealization of faces, slightly heroic but natural look. ";
+
+const SOVIET_COLORS_LIGHTING = 
   "Dominant reds with balanced sky blue, warm beige skin tones, fresh spring greens, warm sunlight tones, harmonious vintage palette. " +
   "Bright daylight, soft and optimistic lighting, no dramatic shadows, no dark mood.";
 
-const SOVIET_SUBJECT = 
-  "Preserve original identity, facial features, proportions, and likeness of the person. Maintain high recognizability. No distortion.";
-
 const SOVIET_CONTEXT = 
-  "Visual cues of May Day: red flags, banners without text (unless specified), spring flowers (tulips, lilac, cherry blossoms), " +
+  "Visual cues of May Day: red flags, banners (blank unless text is specified), abundant spring flowers (tulips, lilac, cherry blossoms), " +
   "white doves, festive crowd atmosphere, feeling of unity, labor celebration, peace and optimism.";
 
-const SOVIET_FINISH = 
-  "Subtle print texture, light grain, soft vintage finish, no heavy aging. " +
-  "Strictly May Day theme only, no modern elements, no photorealism.";
+const SOVIET_TEXTURE = 
+  "Subtle print texture, light grain, soft vintage finish, no heavy aging.";
 
-const OUTPUT_FORMAT = 
-  "Output format: 9:16 vertical portrait (tall image). " +
-  "Thin uniform white border (~12px) on all four sides. Clean bottom area — no logo, no watermark, no signature.";
+const SOVIET_RESTRICTIONS = 
+  "Strictly May Day theme only, no modern elements, no photorealism.";
 
 const SOVIET_LETTERING_BASE = 
   "authentic Soviet hand-lettered brush display type — thick uneven strokes, bold characters, " +
-  "slightly imperfect hand-crafted feel, reminiscent of 1950s–1960s Soviet poster brush lettering. " +
-  "NOT a modern font. NOT digital. Visible brush texture.";
+  "slightly imperfect hand-crafted feel, 1950s–1960s Soviet poster brush lettering. " +
+  "NOT modern font. NOT digital. Visible brush texture.";
 
-// ── Негатив ─────────────────────────────────────────────────────────
+// ==================== CONTROLS (регулируй здесь) ====================
+
+const CONTROLS = {
+  style_strength: 0.80,        // Увеличь до 0.85–0.92 если хочешь сильнее стиль
+  identity_preservation: 0.65, // Уменьши до 0.65–0.70 если лицо слишком фото
+  texture_strength: 0.25,
+  composition_change: 0.60,
+  context_enforcement: 0.85
+};
+
+// ==================== NEGATIVE PROMPT ====================
+
 const SOVIET_NEGATIVE = 
-  "text, typography, letters, slogans, numbers, holiday greetings, new year, christmas, snow, winter, 8 march, women's day, " +
-  "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
-  "logo, watermark, signature, modern elements, pasted face, face swap";
+  "text, typography, letters, slogans, numbers, holiday greetings, new year, christmas, snow, winter, " +
+  "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, " +
+  "heavy textures, logo, watermark, signature, pasted face, face swap, photo collage, realistic skin texture, modern makeup";
 
-// ── Общая база ──────────────────────────────────────────────────────
+// ==================== COMMON BASE ====================
+
 const SOVIET_COMMON_BASE = 
-  "Transform this reference photo into an authentic Soviet May Day postcard illustration in 9:16 vertical format. " +
+  `Transform this reference photo into an authentic Soviet May Day postcard illustration in 9:16 vertical format. ` +
   SOVIET_REPAINT + " " +
-  SOVIET_STYLE_BASE + " " +
-  SOVIET_SUBJECT + " " +
-  SOVIET_CONTEXT + " " +
-  SOVIET_FINISH + " " +
-  OUTPUT_FORMAT;
+  SOVIET_BASE_STYLE +
+  SOVIET_RENDERING +
+  SOVIET_COLORS_LIGHTING +
+  SOVIET_CONTEXT +
+  SOVIET_TEXTURE +
+  SOVIET_RESTRICTIONS +
+  `Output format: 9:16 vertical portrait. Thin uniform white border ~12px on all sides. Clean bottom.`;
 
-// ── Промпты для разных вариантов ─────────────────────────────────────
+// ==================== ФУНКЦИИ ====================
 
 // 1. Без текста
 function buildMayDayPromptNoText() {
-  return (
-    SOVIET_COMMON_BASE +
-    " NO TEXT anywhere. NO letters. NO typography. All banners and flags must be completely blank. " +
-    SOVIET_NEGATIVE
-  );
+  return SOVIET_COMMON_BASE + 
+    " NO TEXT anywhere. All banners and flags must be completely blank. " +
+    SOVIET_NEGATIVE;
 }
 
 // 2. «С Первомаем!»
 function buildMayDayPromptMayDay() {
-  return (
-    SOVIET_COMMON_BASE +
-    "LETTERING REQUIREMENT — CRITICAL: Large bold Cyrillic text 'С Первомаем!' at the top center, " +
-    "rendered in " + SOVIET_LETTERING_BASE + 
+  return SOVIET_COMMON_BASE +
+    "LETTERING REQUIREMENT — CRITICAL: Large bold Cyrillic text 'С Первомаем!' at the top center, rendered in " +
+    SOVIET_LETTERING_BASE +
     " Bright yellow or white fill with red or gold outline. " +
-    "Placed at top center in classic postcard header style. DO NOT repeat text anywhere else. " +
-    "Bottom area must be completely clean. " +
-    SOVIET_NEGATIVE
-  );
+    "Placed at top center in classic postcard header style. DO NOT repeat text anywhere else. Bottom must be clean. " +
+    SOVIET_NEGATIVE;
 }
 
 // 3. «Работа работой, май — по расписанию»
 function buildMayDayPromptLabor() {
-  return (
-    SOVIET_COMMON_BASE +
+  return SOVIET_COMMON_BASE +
     "LETTERING REQUIREMENT — CRITICAL: Text 'Работа работой, май — по расписанию' MUST be hand-painted in " +
     SOVIET_LETTERING_BASE +
     " Red fill with gold or yellow outline, rough painted edge. " +
-    "Placed at top center, large and bold. DO NOT repeat text anywhere else. " +
-    "Bottom area must be completely clean. " +
-    SOVIET_NEGATIVE
-  );
+    "Placed at top center, large and bold. DO NOT repeat text anywhere else. Bottom area must be completely clean. " +
+    SOVIET_NEGATIVE;
 }
 
 // 4. «Товарищи-металлурги, с праздником!»
 function buildMayDayPromptMetallurgists() {
-  return (
-    SOVIET_COMMON_BASE +
-    "Metallurgical May Day context: factory setting with industrial buildings and workers in the background, spring flowers. " +
+  return SOVIET_COMMON_BASE +
+    "Metallurgical context: factory buildings, industrial elements, workers in background, spring flowers. " +
     "LETTERING REQUIREMENT — CRITICAL: Large bold Cyrillic text 'Товарищи-металлурги, с праздником!' at the top center, " +
     "rendered in " + SOVIET_LETTERING_BASE +
     " Red fill with gold or yellow outline, rough painted edge. " +
-    "Placed at top center, large and bold. DO NOT repeat text anywhere else. " +
-    "Bottom area must be completely clean. " +
-    SOVIET_NEGATIVE
-  );
+    "Placed at top center, large and bold. DO NOT repeat text anywhere else. Bottom area must be completely clean. " +
+    SOVIET_NEGATIVE;
 }
 
 function isStartCommand(text) {
