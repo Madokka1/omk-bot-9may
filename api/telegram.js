@@ -254,22 +254,17 @@ function buildMayDayPromptLabor() {
 // 4. «Товарищи-металлурги, с праздником!»
 function buildMayDayPromptSpring() {
   return (
-    "Transform this photo into an authentic Soviet May Day postcard illustration. " +
-    SOVIET_REPAINT +
-    "1950s Soviet industrial poster aesthetic, socialist realism, monumental and heroic. " +
-    "Painted illustration style: flat areas of color, strong outlines, poster-like rendering, NO photorealism. " +
-    "Powerful metallurgical background painted in poster style: blast furnace silhouettes, glowing molten metal, sparks, May Day red banners. " +
-    SOVIET_SUBJECT +
-    SOVIET_FINISH +
-    "Subjects should look proud and strong, fitting the heroic metallurgist archetype. " +
-    "Dominant deep reds, molten gold accents, strong industrial blues and greys. " +
-    OUTPUT_FORMAT +
-    "LETTERING REQUIREMENT — CRITICAL: Large monumental Cyrillic text 'Товарищи-металлурги, с праздником!' rendered in " +
-    SOVIET_LETTERING_BASE +
-    "Red fill with gold or yellow outline. " +
-    "Placed at top center, postcard header style. DO NOT repeat text anywhere else. Bottom area must be completely clean. " +
-    "Strictly metallurgical and May Day theme, no modern technology, no English text. " +
-    "Extra style hint: " + (process.env.IMG_STYLE_PROMPT || "") + ". "
+    SOVIET_COMMON_BASE +
+    "Metallurgical May Day context: factory setting in background, workers in overalls or work uniforms, " +
+    "spring flowers, red banners, festive and proud atmosphere. " +
+    "Bright and light color palette, airy and cheerful, light sky blue background, soft warm tones, NO dark areas, NO shadows. " +
+    "NO PROMPT TEXT. NO captions. NO descriptions anywhere in the image. NO English text. " +
+    "LETTERING REQUIREMENT — CRITICAL: Text 'Товарищи-металлурги, с праздником!' MUST be hand-painted, NOT a computer font. " +
+    "Render as authentic Soviet brush lettering: thick irregular strokes, slight wobble in characters, " +
+    "ink brush texture visible, letters slightly uneven in size and spacing, 1950s propaganda poster hand-lettering style. " +
+    "NOT clean, NOT digital, NOT smooth. Red fill with gold or yellow outline, rough painted edge. " +
+    "Placed at top center, large and bold. DO NOT repeat text anywhere else. " +
+    "Bottom area must be completely clean — NO text, NO captions, NO watermarks. "
   );
 }
 
