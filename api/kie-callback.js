@@ -266,9 +266,11 @@ async function overlayClientLogo(blob) {
   const maxLogoH = Math.max(28, footerMaxH - footerPadY * 2);
   const targetH = Math.max(34, Math.min(Math.round(height * 0.08), maxLogoH)); // cap visual height of the logo itself
 
-  const logoPng = await sharp(Buffer.from(svg), { density: 400 })
-    .resize({ width: targetW, height: targetH, fit: "inside", withoutEnlargement: true })
+  // Render SVG -> PNG, then trim transparent padding so footer paddings are visually equal.
+  const logoPng = await sharp(Buffer.from(svg), { density: 500 })
     .png()
+    .trim({ threshold: 10 })
+    .resize({ width: targetW, height: targetH, fit: "inside", withoutEnlargement: true })
     .toBuffer();
 
   const logoMeta = await sharp(logoPng).metadata();
@@ -278,8 +280,9 @@ async function overlayClientLogo(blob) {
   // Footer height is exactly logo height + equal paddings (top=bottom).
   // If we need a minimum footer height, increase padding (not footer) to keep top/bottom equal.
   const minFooterH = 64;
+  const extraPad = 6; // slightly larger footer padding for better look
   const neededPadY = Math.max(
-    footerPadY,
+    footerPadY + extraPad,
     Math.ceil(Math.max(0, minFooterH - logoH) / 2)
   );
   const footerH = logoH + neededPadY * 2;
