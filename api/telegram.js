@@ -172,57 +172,53 @@ const TEXT_VARIANTS = {
 };
 
 // ── Базовые блоки ────────────────────────────────────────────────────
-
 const SOVIET_REPAINT = 
-  "REPAINT this photo COMPLETELY as a traditional painted illustration in authentic Soviet style. " +
-  "Do NOT cut out or paste the original face. Do NOT do face swap. " +
-  "Fully redraw the entire person (face, hair, skin, clothing, hands, body) and background from scratch in the same painted art style. " +
-  "No photorealistic elements, no collage, no pasted photo parts. Everything must be painted consistently.";
+  "FULLY REPAINT the entire image as a traditional Soviet-style painted illustration. " +
+  "Do NOT cut out the face. Do NOT paste the original photo. Do NOT perform face swap or collage. " +
+  "Redraw the woman's face, hair, skin, clothing, jewelry, hands and body completely from scratch in painted art style. " +
+  "Everything in the image must be consistently painted — no photorealistic skin, no real photo textures, no pasted parts.";
 
 const SOVIET_STYLE_BASE = 
-  "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s, socialist realism, bright spring optimism. " +
-  "Red flags and banners (mostly blank), white doves, abundant spring flowers (tulips, lilac, cherry blossoms), festive atmosphere. " +
-  "Semi-realistic Soviet painting style with soft idealization, clean edges, warm and slightly heroic but natural look. " +
-  "Vibrant yet harmonious vintage color palette: dominant reds, bright sky blue, warm sunlight, fresh greens.";
+  "Authentic Soviet May Day postcard illustration, USSR 1950s–1970s socialist realism style, bright spring optimism. " +
+  "Semi-realistic painted illustration with soft idealization, clean lines, warm heroic yet natural look. " +
+  "Vintage color palette: dominant reds, bright sky blue, warm sunlight, fresh spring greens and flowers.";
 
 const SOVIET_SUBJECT = 
-  "Carefully preserve the exact facial features, identity, eye shape, eye color, nose, lips, hairstyle and overall likeness of the woman from the reference photo. " +
-  "High recognizability is critical, but she must look like a painted illustration, not a photograph.";
+  "Preserve the woman's recognizable likeness, facial structure, eye shape, eye color, hairstyle (long dark hair in ponytail), " +
+  "and overall appearance from the reference, but render her entirely as a painted Soviet illustration, not as a photograph.";
 
 const SOVIET_BACKGROUND = 
-  "Create a rich, detailed and UNIQUE background tailored to this image. " +
-  "Strongly vary the scene: large metallurgical plant with factories, chimneys, cranes, pipes, industrial structures in the background, " +
-  "crowd of workers with red flags, blooming spring trees and flowers in foreground. Add depth and perspective. " +
-  "Make the background feel alive and different from previous images.";
+  "Rich, detailed and unique metallurgical plant background: large factories with chimneys and smoke, industrial cranes, pipes, " +
+  "crowd of Soviet workers in overalls and hard hats holding red flags, blooming cherry trees and spring flowers in the foreground. " +
+  "Add depth, perspective and festive May Day atmosphere. Make the background detailed and alive.";
 
 const SOVIET_FINISH = 
-  "Subtle vintage print texture, light grain, soft postcard finish. Bright daylight, soft optimistic lighting. No harsh shadows.";
+  "Subtle vintage print texture, light grain, soft postcard aesthetic. Bright daylight, soft optimistic lighting.";
 
 const OUTPUT_FORMAT = 
-  "Output format: 9:16 vertical portrait (tall image). " +
-  "Thin uniform white border (~12px) on all four sides. " +
-  "Clean bottom area — NO logo, NO watermark, NO signature, NO text at the bottom.";
+  "Output format: 9:16 vertical portrait orientation (tall image). " +
+  "Thin uniform white border approximately 12px on all four sides. " +
+  "Completely clean bottom area — no logo, no watermark, no signature.";
 
 const SOVIET_LETTERING_BASE = 
-  "authentic Soviet hand-lettered brush display type — thick uneven strokes, bold characters, " +
-  "slightly imperfect hand-crafted feel, 1950s–1960s Soviet poster brush lettering style. " +
-  "NOT modern, NOT digital, NOT smooth. Visible brush texture and slight wobble.";
+  "authentic Soviet hand-painted brush lettering — thick uneven strokes, bold characters, slight natural wobble, " +
+  "1950s–1960s Soviet propaganda poster style. NOT digital, NOT smooth, visible brush texture.";
 
-// ── Негатив ─────────────────────────────────────────────────────────
+// ── Негатив (усиленный) ─────────────────────────────────────────────
 const SOVIET_NEGATIVE = 
-  "photorealistic face, pasted face, cut out face, photo collage, face swap, realistic skin texture, " +
-  "generic background, repetitive background, same background, flat background, low detail background, " +
-  "logo, watermark, signature, text at bottom, modern elements, dark shadows, oversaturated colors, " +
-  "distorted hands, deformed anatomy";
+  "photorealistic, realistic skin, photo texture, pasted face, cut out face, face swap, photo collage, " +
+  "realistic photography, modern photo, glossy skin, plastic skin, " +
+  "generic background, repetitive background, flat background, low detail, " +
+  "logo, watermark, signature, text at bottom, modern elements, dark shadows, oversaturated";
 
-// ── Общая база ──────────────────────────────────────────────────────
+// ── Общая база (порядок важен!) ─────────────────────────────────────
 const SOVIET_COMMON_BASE = 
+  SOVIET_REPAINT + " " +          // ← Репейнт ставим в самое начало
   "Transform this reference photo into an authentic Soviet May Day postcard illustration in 9:16 vertical format. " +
-  SOVIET_REPAINT +
-  SOVIET_STYLE_BASE +
-  SOVIET_SUBJECT +
-  SOVIET_BACKGROUND +
-  SOVIET_FINISH +
+  SOVIET_STYLE_BASE + " " +
+  SOVIET_SUBJECT + " " +
+  SOVIET_BACKGROUND + " " +
+  SOVIET_FINISH + " " +
   OUTPUT_FORMAT;
 
 // ── Промпты для разных вариантов ─────────────────────────────────────
@@ -264,11 +260,10 @@ function buildMayDayPromptLabor() {
 function buildMayDayPromptMetallurgists() {
   return (
     SOVIET_COMMON_BASE +
-    "Metallurgical May Day context: factory buildings, industrial structures, workers in overalls in the background, spring flowers. " +
-    "LETTERING REQUIREMENT — CRITICAL: Text 'Товарищи-металлурги, с праздником!' MUST be hand-painted in " +
-    SOVIET_LETTERING_BASE +
-    " Red fill with gold or yellow outline, rough painted edge. " +
-    "Placed at top center, large and bold. DO NOT repeat text anywhere else. Bottom area must be completely clean. " +
+    "LETTERING REQUIREMENT — CRITICAL: Large bold red Cyrillic text with yellow/gold outline 'Товарищи-металлурги, с праздником!' " +
+    "rendered in " + SOVIET_LETTERING_BASE + 
+    " Placed at the top center in classic Soviet postcard style. Do not repeat text elsewhere. " +
+    "Bottom area completely clean. " +
     SOVIET_NEGATIVE
   );
 }
