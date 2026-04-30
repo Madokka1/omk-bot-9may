@@ -289,7 +289,11 @@ async function overlayClientLogo(blob) {
 
   // Place logo centered within footer.
   const logoLeft = Math.max(PAD_X, Math.round((width - logoW) / 2));
-  const logoTop = Math.round(height + PAD_Y + Math.max(0, Math.floor((LOGO_H - logoH) / 2)));
+  const RAISE_PX = 20;
+  const logoTop = Math.max(
+    height,
+    Math.round(height + PAD_Y + Math.max(0, Math.floor((LOGO_H - logoH) / 2)) - RAISE_PX)
+  );
 
   const composed = await extended
     .composite([{ input: logoPng, top: logoTop, left: logoLeft }])
