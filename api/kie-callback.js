@@ -258,7 +258,7 @@ async function overlayClientLogo(blob) {
 
   // Footer + logo sizing based on real output dimensions.
   // Target: when image width ≈ 1398px -> logo ≈ 600x183 (as in Figma).
-  const PAD_Y = 10;
+  const PAD_Y = 60;
   const PAD_X = 12;
   const MAX_LOGO_W = Math.max(1, width - PAD_X * 2);
   const LOGO_W_RATIO = 600 / 1398; // ≈0.429
