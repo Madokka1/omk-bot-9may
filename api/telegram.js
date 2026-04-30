@@ -560,7 +560,7 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitNoText = async () => {
     const prompt = buildMayDayPromptNoText();
-    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-2-edit").trim();
+    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-2").trim();
     return await kie.createTask({
       model: nanoBananaModel,
       input: {
