@@ -596,7 +596,7 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   };
 
   const submitSpring = async () => {
-    const prompt = buildMayDayPromptSpring();
+    const prompt = buildMayDayPromptMetallurgists();
     return await kie.createTask({
       model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
@@ -605,7 +605,7 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
       },
       callBackUrl
     });
-  };
+};
 
   const submitByVariant = {
     [TEXT_VARIANTS.NO_TEXT]: submitNoText,
