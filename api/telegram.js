@@ -224,9 +224,46 @@ function getPromptControls() {
 
 function controlsPromptText() {
   const c = getPromptControls();
+  const repeat = (s, n) => Array.from({ length: Math.max(1, Math.min(4, n)) }, () => s).join(" ");
+  const styleEmphasis = 1 + Math.round(c.stylization * 3);
+  const contextEmphasis = 1 + Math.round(c.context * 2);
+
+  const hardNoPhoto =
+    c.realism <= 0.2
+      ? "CRITICAL: NO photographic look. NO realistic skin pores. NO beauty retouch. NO camera/lens effects. NO bokeh. NO glossy skin. "
+      : c.realism <= 0.4
+        ? "NO photorealism. Avoid realistic skin texture and camera/lens effects. "
+        : "";
+
+  const strongPoster =
+    c.stylization >= 0.75
+      ? "CRITICAL: Soviet poster illustration, clearly painted, visible brushwork, simplified shapes, crisp edges. "
+      : c.stylization >= 0.5
+        ? "Illustration look, painted texture, simplified forms. "
+        : "";
+
+  const identityHint =
+    c.identity >= 0.6
+      ? "Keep likeness strong (still fully painted). "
+      : c.identity <= 0.25
+        ? "Likeness is secondary to style; keep only general identity cues. "
+        : "Keep recognizability balanced with style. ";
+
+  const mayDayBoost =
+    c.context >= 0.7
+      ? repeat(
+          "May Day cues: red flags (plain), spring flowers, festive workers, light industrial background, optimistic mood.",
+          contextEmphasis
+        ) + " "
+      : "";
+
   return (
-    `Controls (0..1): stylization=${c.stylization}, realism=${c.realism}, identity=${c.identity}, context=${c.context}. ` +
-    "Interpretation: higher stylization/context => more poster-like May Day illustration; lower realism => less photographic detail; higher identity => closer likeness. "
+    `Controls(0..1): stylization=${c.stylization}, realism=${c.realism}, identity=${c.identity}, context=${c.context}. ` +
+    repeat("FULL REPAINT.", styleEmphasis) + " " +
+    strongPoster +
+    hardNoPhoto +
+    identityHint +
+    mayDayBoost
   );
 }
 
