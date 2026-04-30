@@ -246,7 +246,7 @@ function controlsPromptText() {
     c.identity >= 0.6
       ? "Keep likeness strong (still fully painted). "
       : c.identity <= 0.25
-        ? "Likeness is secondary to style; keep only general identity cues. "
+        ? "Likeness is secondary to style; keep only general identity cues. Allow noticeable changes to facial details as long as the person remains generally recognizable. "
         : "Keep recognizability balanced with style. ";
 
   const mayDayBoost =
@@ -609,6 +609,11 @@ function parseExtraInputJson(raw) {
   }
 }
 
+function isNanoBanana2(model) {
+  const m = String(model || "").trim().toLowerCase();
+  return m === "nano-banana-2" || m.endsWith("/nano-banana-2") || m.includes("nano-banana-2");
+}
+
 async function submitKieEditTask({ req, chatId, userId, fileId, variantText, creditsLeft }) {
   const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
 
@@ -620,16 +625,32 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitNoText = async () => {
     const prompt = buildMayDayPromptNoText();
-    const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
-    const extraInput = { output_format: "png", image_size: "9:16" };
+    const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
+    const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
+
+    const defaultInput = isNanoBanana2(model)
+      ? {
+          // nano-banana-2 API params
+          output_format: "png",
+          resolution: "2K",
+          aspect_ratio: "9:16",
+          // KIE market inconsistency: send both keys
+          image_urls: commonImages,
+          image_input: commonImages
+        }
+      : {
+          output_format: "png",
+          image_size: "9:16",
+          image_urls: commonImages
+        };
+
     return await kie.createTask({
-      model: nanoBananaModel,
+      model,
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        ...extraInput,
-        ...(extraJson || {})
+        ...defaultInput,
+        ...(extraJson || {}) // allow override
       },
       callBackUrl
     });
@@ -638,14 +659,22 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitMayDay = async () => {
     const prompt = buildMayDayPromptMayDay();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
+    const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
+    const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
+    const defaultInput = isNanoBanana2(model)
+      ? {
+          output_format: "png",
+          resolution: "2K",
+          aspect_ratio: "9:16",
+          image_urls: commonImages,
+          image_input: commonImages
+        }
+      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
     return await kie.createTask({
-      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      model,
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        // Force 9:16 output across all variants
-        image_size: "9:16",
-        output_format: "png",
+        ...defaultInput,
         ...(extraJson || {})
       },
       callBackUrl
@@ -655,13 +684,22 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitLabor = async () => {
     const prompt = buildMayDayPromptLabor();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
+    const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
+    const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
+    const defaultInput = isNanoBanana2(model)
+      ? {
+          output_format: "png",
+          resolution: "2K",
+          aspect_ratio: "9:16",
+          image_urls: commonImages,
+          image_input: commonImages
+        }
+      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
     return await kie.createTask({
-      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      model,
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        image_size: "9:16",
-        output_format: "png",
+        ...defaultInput,
         ...(extraJson || {})
       },
       callBackUrl
@@ -671,13 +709,22 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitSpring = async () => {
     const prompt = buildMayDayPromptMetallurgists();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
+    const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
+    const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
+    const defaultInput = isNanoBanana2(model)
+      ? {
+          output_format: "png",
+          resolution: "2K",
+          aspect_ratio: "9:16",
+          image_urls: commonImages,
+          image_input: commonImages
+        }
+      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
     return await kie.createTask({
-      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      model,
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        image_size: "9:16",
-        output_format: "png",
+        ...defaultInput,
         ...(extraJson || {})
       },
       callBackUrl
