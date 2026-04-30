@@ -187,6 +187,9 @@ const SOVIET_PROMPT_COMPACT =
   "FULL repaint. Entire image must be a single cohesive painting. " +
   "Redraw all people, faces, skin, and details in the SAME painterly style. " +
   "No photo elements, no collage, no mixed media. NO split panels. NO diptych. NO two frames. ONLY ONE single scene in ONE frame. " +
+  // 🧍 анатомия — без артефактов
+  "Anatomy must be correct. CRITICAL: exactly two arms/hands per person, no extra arms, no extra hands, no duplicated limbs. " +
+  "Hands must have normal realistic finger count (5 fingers). No extra fingers. " +
   // 👤 лица (без фотки, но узнаваемые)
   "Preserve identity through painterly interpretation only. Faces must be recognizable but fully painted. " +
   "Painted skin texture with soft brushwork, no photographic detail, no pores, no lens effects. " +
@@ -211,7 +214,8 @@ const SOVIET_NEGATIVE =
   "Negative: multiple texts, typography, letters, slogans, numbers, holiday greetings, new year, christmas, snow, winter, santa, gifts, " +
   "8 march, women's day, fireworks, confetti, modern posters, logos, watermark, signature, " +
   "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
-  "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, 3d render, hammer and sickle. ";
+  "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, 3d render, hammer and sickle, " +
+  "extra arms, extra hands, extra fingers, missing fingers, fused fingers, deformed hands, duplicated limbs, bad anatomy. ";
 
 function clamp01(x, fallback) {
   const n = Number(x);

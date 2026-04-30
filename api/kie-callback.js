@@ -257,11 +257,11 @@ async function overlayClientLogo(blob) {
   if (!width || !height) return blob;
 
   // Fixed footer + paddings (px), as requested.
-  // Footer height: 40px; inner padding top/bottom: 10px; side padding: 12px.
-  const FOOTER_H = 40;
+  // Footer height: 60px; logo height: 40px; bottom padding: 10px (top padding becomes 10px); side padding: 12px.
+  const FOOTER_H = 60;
   const PAD_Y = 10;
   const PAD_X = 12;
-  const LOGO_H = Math.max(1, FOOTER_H - PAD_Y * 2); // 20px
+  const LOGO_H = 40;
   const MAX_LOGO_W = Math.max(1, width - PAD_X * 2);
 
   // Render SVG -> PNG, trim transparent padding, then fit into the fixed box.
