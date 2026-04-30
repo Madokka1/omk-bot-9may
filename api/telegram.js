@@ -205,9 +205,36 @@ const SOVIET_NEGATIVE =
   "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
   "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, 3d render, hammer and sickle. ";
 
+function clamp01(x, fallback) {
+  const n = Number(x);
+  if (!Number.isFinite(n)) return fallback;
+  if (n < 0) return 0;
+  if (n > 1) return 1;
+  return n;
+}
+
+function getPromptControls() {
+  // 0..1 — увеличивайте stylization/context, уменьшайте identity/realism
+  const stylization = clamp01(process.env.PROMPT_STYLIZATION, 0.85);
+  const realism = clamp01(process.env.PROMPT_REALISM, 0.15);
+  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.35);
+  const context = clamp01(process.env.PROMPT_CONTEXT, 0.85);
+  return { stylization, realism, identity, context };
+}
+
+function controlsPromptText() {
+  const c = getPromptControls();
+  return (
+    `Controls (0..1): stylization=${c.stylization}, realism=${c.realism}, identity=${c.identity}, context=${c.context}. ` +
+    "Interpretation: higher stylization/context => more poster-like May Day illustration; lower realism => less photographic detail; higher identity => closer likeness. "
+  );
+}
+
 function buildSovietBase(extraContext) {
   const extra = String(extraContext || "").trim();
-  return extra ? SOVIET_PROMPT_COMPACT + extra + " " : SOVIET_PROMPT_COMPACT;
+  const controls = controlsPromptText();
+  const base = extra ? SOVIET_PROMPT_COMPACT + extra + " " : SOVIET_PROMPT_COMPACT;
+  return base + controls;
 }
 
 function buildSovietPromptNoText(extraContext) {
@@ -534,6 +561,17 @@ function signKieCallbackUrl({ req, chatId, userId, variantText, creditsLeft }) {
   return url;
 }
 
+function parseExtraInputJson(raw) {
+  const s = String(raw || "").trim();
+  if (!s) return null;
+  try {
+    const parsed = JSON.parse(s);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 async function submitKieEditTask({ req, chatId, userId, fileId, variantText, creditsLeft }) {
   const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
 
@@ -547,12 +585,14 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     const prompt = buildMayDayPromptNoText();
     const nanoBananaModel = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
     const extraInput = { output_format: "png", image_size: "9:16" };
+    const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     return await kie.createTask({
       model: nanoBananaModel,
       input: {
         prompt: String(prompt || "").trim(),
         image_urls: [String(inputUrl || "").trim()].filter(Boolean),
-        ...extraInput
+        ...extraInput,
+        ...(extraJson || {})
       },
       callBackUrl
     });
@@ -560,11 +600,13 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitMayDay = async () => {
     const prompt = buildMayDayPromptMayDay();
+    const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     return await kie.createTask({
       model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        ...(extraJson || {})
       },
       callBackUrl
     });
@@ -572,11 +614,13 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitLabor = async () => {
     const prompt = buildMayDayPromptLabor();
+    const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     return await kie.createTask({
       model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        ...(extraJson || {})
       },
       callBackUrl
     });
@@ -584,11 +628,13 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
 
   const submitSpring = async () => {
     const prompt = buildMayDayPromptMetallurgists();
+    const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     return await kie.createTask({
       model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        ...(extraJson || {})
       },
       callBackUrl
     });
