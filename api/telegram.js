@@ -207,10 +207,17 @@ const SOVIET_NEGATIVE =
 
 const SOVIET_COMMON_BASE =
   "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+  SOVIET_REPAINT +
   SOVIET_STYLE_BASE +
   SOVIET_SUBJECT +
   SOVIET_FINISH +
   OUTPUT_FORMAT;
+
+const SOVIET_REPAINT =
+  "REPAINT this photo entirely as a painted illustration. " +
+  "Do NOT paste or cut out the original face/person onto a new background. " +
+  "Fully redraw all people in the same painting style as the background. NO photo collage. NO photorealistic face pasted over illustration. ";
+
 
 // ── Промпты ───────────────────────────────────────────────────────────────────
 
@@ -248,15 +255,15 @@ function buildMayDayPromptLabor() {
 // 4. «Товарищи-металлурги, с праздником!»
 function buildMayDayPromptSpring() {
   return (
-    "REPAINT this photo entirely as a Soviet propaganda poster illustration. " +
-    "Do NOT use the original photo as a background. Fully redraw all people and background in painting style. " +
+    "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+    SOVIET_REPAINT +
     "1950s Soviet industrial poster aesthetic, socialist realism, monumental and heroic. " +
-    "Painted illustration style: flat areas of color, strong outlines, poster-like rendering, NO photorealism, NO photo collage. " +
+    "Painted illustration style: flat areas of color, strong outlines, poster-like rendering, NO photorealism. " +
     "Powerful metallurgical background painted in poster style: blast furnace silhouettes, glowing molten metal, sparks, May Day red banners. " +
     SOVIET_SUBJECT +
+    SOVIET_FINISH +
     "Subjects should look proud and strong, fitting the heroic metallurgist archetype. " +
     "Dominant deep reds, molten gold accents, strong industrial blues and greys. " +
-    "Subtle print texture, light grain, soft vintage finish. " +
     OUTPUT_FORMAT +
     "LETTERING REQUIREMENT — CRITICAL: Large monumental Cyrillic text 'Товарищи-металлурги, с праздником!' rendered in " +
     SOVIET_LETTERING_BASE +
