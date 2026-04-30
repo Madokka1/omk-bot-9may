@@ -179,7 +179,7 @@ const SOVIET_PROMPT_COMPACT =
   "Redraw all people, faces, skin, and details in the SAME painterly style. No photo elements, no collage, no mixed media. " +
   "Preserve identity through painterly interpretation only. Faces must be recognizable but fully painted. " +
   "Painted skin texture with soft brushwork, no photographic detail, no pores, no lens effects. " +
-  "Semi-realistic Soviet painting style: clean shapes, soft idealization, natural anatomy, light heroic tone. " +
+  "Soviet poster illustration look (not photo): clean shapes, simplified forms, crisp outlines, flat-to-soft shading, soft idealization, natural anatomy, light heroic tone. " +
   "Vintage palette: dominant reds, sky blue, warm skin tones, fresh greens. Bright daylight, soft shadows, optimistic mood. " +
   "Clear May Day scene: red flags (plain red, no hammer and sickle), spring flowers, festive workers, light industrial background. " +
   "Vertical composition (9:16), tall framing, subject well integrated into scene. " +
@@ -193,7 +193,7 @@ const SOVIET_NEGATIVE =
   "Negative: multiple texts, typography, letters, slogans, numbers, holiday greetings, new year, christmas, snow, winter, santa, gifts, " +
   "8 march, women's day, fireworks, confetti, modern posters, logos, watermark, signature, " +
   "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
-  "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, hammer and sickle. ";
+  "pasted face, face swap, photo collage, realistic skin pores, lens effects, glamour, beauty retouch, glossy skin, modern makeup, 3d render, hammer and sickle. ";
 
 function buildSovietBase(extraContext) {
   const extra = String(extraContext || "").trim();
@@ -550,10 +550,12 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitMayDay = async () => {
     const prompt = buildMayDayPromptMayDay();
     return await kie.createTask({
-      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      model: (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        output_format: "png",
+        image_size: "9:16"
       },
       callBackUrl
     });
@@ -562,10 +564,12 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitLabor = async () => {
     const prompt = buildMayDayPromptLabor();
     return await kie.createTask({
-      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      model: (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        output_format: "png",
+        image_size: "9:16"
       },
       callBackUrl
     });
@@ -574,10 +578,12 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   const submitSpring = async () => {
     const prompt = buildMayDayPromptMetallurgists();
     return await kie.createTask({
-      model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
+      model: (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim(),
       input: {
         prompt: String(prompt || "").trim(),
-        image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+        image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+        output_format: "png",
+        image_size: "9:16"
       },
       callBackUrl
     });
@@ -624,7 +630,10 @@ async function submitKieStylizeTask({ req, chatId, userId, fileId, creditsLeft }
     model: (process.env.KIE_I2I_MODEL || "grok-imagine/image-to-image").trim(),
     input: {
       prompt: String(prompt || "").trim(),
-      image_urls: [String(inputUrl || "").trim()].filter(Boolean)
+      image_urls: [String(inputUrl || "").trim()].filter(Boolean),
+      // keep consistent output format across flows
+      output_format: "png",
+      image_size: "9:16"
     },
     callBackUrl
   });
