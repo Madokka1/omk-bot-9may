@@ -248,13 +248,15 @@ function buildMayDayPromptLabor() {
 // 4. «Товарищи-металлурги, с праздником!»
 function buildMayDayPromptSpring() {
   return (
-    "Transform this photo into an authentic Soviet May Day postcard illustration. " +
+    "REPAINT this photo entirely as a Soviet propaganda poster illustration. " +
+    "Do NOT use the original photo as a background. Fully redraw all people and background in painting style. " +
     "1950s Soviet industrial poster aesthetic, socialist realism, monumental and heroic. " +
-    "Powerful metallurgical background: blast furnace silhouettes, glowing molten metal, sparks, combined with May Day red banners. " +
+    "Painted illustration style: flat areas of color, strong outlines, poster-like rendering, NO photorealism, NO photo collage. " +
+    "Powerful metallurgical background painted in poster style: blast furnace silhouettes, glowing molten metal, sparks, May Day red banners. " +
     SOVIET_SUBJECT +
-    SOVIET_FINISH +
     "Subjects should look proud and strong, fitting the heroic metallurgist archetype. " +
     "Dominant deep reds, molten gold accents, strong industrial blues and greys. " +
+    "Subtle print texture, light grain, soft vintage finish. " +
     OUTPUT_FORMAT +
     "LETTERING REQUIREMENT — CRITICAL: Large monumental Cyrillic text 'Товарищи-металлурги, с праздником!' rendered in " +
     SOVIET_LETTERING_BASE +
