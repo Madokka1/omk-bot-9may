@@ -141,6 +141,7 @@ function translateFailureReason(reason) {
   const r = raw.toLowerCase();
   if (!raw) return "";
 
+  // Load / availability / retries
   if (r.includes("flagged as sensitive")) {
     return (
       "Сервис отклонил запрос как «чувствительный контент». " +
@@ -155,11 +156,66 @@ function translateFailureReason(reason) {
     );
   }
 
+  if (r.includes("timeout") || r.includes("timed out") || r.includes("deadline")) {
+    return "Превышено время ожидания обработки. Попробуйте ещё раз позже.";
+  }
+
+  if (r.includes("rate limit") || r.includes("too many requests") || r.includes("429")) {
+    return "Слишком много запросов за короткое время. Подождите немного и повторите попытку.";
+  }
+
+  if (r.includes("insufficient") && r.includes("credits")) {
+    return "Недостаточно кредитов/лимита на стороне сервиса. Попробуйте позже или проверьте баланс API.";
+  }
+
+  // Input validation / image problems
+  if (r.includes("image_urls is required") || r.includes("image url is required")) {
+    return "Сервис не получил ссылку на изображение. Попробуйте отправить фото ещё раз.";
+  }
+
+  if (r.includes("invalid image") || r.includes("unsupported image") || r.includes("unsupported format")) {
+    return "Неподдерживаемый или повреждённый файл изображения. Попробуйте другое фото (JPEG/PNG/WebP).";
+  }
+
+  if (r.includes("too large") || r.includes("file size") || r.includes("maximum file")) {
+    return "Файл слишком большой для обработки. Попробуйте фото меньшего размера.";
+  }
+
+  if (r.includes("cannot fetch") || r.includes("failed to fetch") || r.includes("download") && r.includes("failed")) {
+    return "Не удалось скачать изображение по ссылке. Попробуйте отправить фото ещё раз.";
+  }
+
+  // Policy / moderation
   if (r.includes("request blocked") && r.includes("public figure")) {
     return (
       "Запрос заблокирован: на фото распознана публичная персона (знаменитость). " +
       "Используйте другое фото или кадрируйте/замажьте лицо публичной персоны."
     );
+  }
+
+  if (r.includes("nsfw") || r.includes("nudity") || r.includes("sexual") || r.includes("adult content")) {
+    return "Запрос отклонён из‑за контента 18+. Используйте другое фото.";
+  }
+
+  if (r.includes("violence") || r.includes("gore") || r.includes("blood")) {
+    return "Запрос отклонён из‑за сцен насилия/крови. Используйте другое фото.";
+  }
+
+  if (r.includes("hate") || r.includes("harassment")) {
+    return "Запрос отклонён из‑за запрещённого контента (ненависть/травля). Используйте другое фото.";
+  }
+
+  if (r.includes("copyright") || r.includes("trademark")) {
+    return "Запрос отклонён из‑за возможных прав (copyright/trademark). Используйте другое изображение.";
+  }
+
+  if (r.includes("policy") && (r.includes("violation") || r.includes("violates"))) {
+    return "Запрос отклонён из‑за нарушения политики сервиса. Попробуйте другое фото.";
+  }
+
+  // Generic KIE codes (keep minimal)
+  if (r.includes("(e003)")) {
+    return "Сервис временно недоступен из‑за высокой нагрузки. Попробуйте позже.";
   }
 
   return "";
