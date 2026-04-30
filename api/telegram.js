@@ -187,9 +187,9 @@ const SOVIET_SUBJECT =
   "Carefully preserve the exact facial features, identity, proportions, eye color, hairstyle and likeness of the person from the reference photo. High recognizability is critical.";
 
 const SOVIET_BACKGROUND = 
-  "Create a rich, detailed and UNIQUE background specifically tailored to this image. " +
-  "Do NOT use generic, repetitive or template backgrounds. Vary the scene: metallurgical plant with factories and cranes, bustling May Day demonstration, industrial workshop, blooming spring park with Soviet architecture, etc. " +
-  "Add depth, perspective, interesting Soviet industrial or festive elements. Make the background feel alive, specific and different every time.";
+  "Create a rich, detailed and UNIQUE background specifically tailored to this image and the person. " +
+  "Do NOT use generic, repetitive or template backgrounds. Vary the scene strongly: metallurgical plant with factories, cranes, pipes and machinery, bustling May Day demonstration with crowd and flags, industrial workshop interior, blooming spring park combined with Soviet industrial elements, etc. " +
+  "Add depth, perspective and interesting Soviet-era details. Make every background feel different and contextually appropriate.";
 
 const SOVIET_FINISH = 
   "Subtle vintage print texture, light grain, soft postcard finish. Bright daylight, soft optimistic lighting. No harsh shadows.";
@@ -202,9 +202,9 @@ const OUTPUT_FORMAT =
 const SOVIET_LETTERING_BASE = 
   "authentic Soviet hand-lettered brush display type — thick uneven strokes, bold characters, " +
   "slightly imperfect hand-crafted feel, reminiscent of 1950s–1960s Soviet poster brush lettering. " +
-  "NOT a modern font. NOT digital. NOT smooth. Visible brush texture and slight wobble.";
+  "NOT a modern font. NOT digital. NOT smooth. Visible brush texture and slight natural wobble.";
 
-// ── Негатив ─────────────────────────────────────────────────────────
+// ── Негативный промпт ───────────────────────────────────────────────
 const SOVIET_NEGATIVE = 
   "generic background, repetitive background, same background, template background, empty background, flat background, " +
   "logo, watermark, signature, text at bottom, photorealism, modern elements, dark shadows, oversaturated colors, " +
@@ -220,13 +220,13 @@ const SOVIET_COMMON_BASE =
   SOVIET_FINISH +
   OUTPUT_FORMAT;
 
-// ── Промпты ───────────────────────────────────────────────────────────────────
+// ── Промпты для разных вариантов ─────────────────────────────────────
 
 // 1. Без текста
 function buildMayDayPromptNoText() {
   return (
     SOVIET_COMMON_BASE +
-    "NO TEXT anywhere. NO letters. NO typography. All banners and flags must be completely blank. " +
+    " NO TEXT anywhere. NO letters. NO typography. All banners and flags must be completely blank. " +
     SOVIET_NEGATIVE
   );
 }
@@ -235,11 +235,10 @@ function buildMayDayPromptNoText() {
 function buildMayDayPromptMayDay() {
   return (
     SOVIET_COMMON_BASE +
-    "LETTERING REQUIREMENT — CRITICAL: Large bold Cyrillic text 'С Первомаем!' at the top center, " +
-    "rendered in " + SOVIET_LETTERING_BASE + 
-    "Bright yellow or white fill with red or gold outline. " +
-    "Placed at top center in classic postcard header style. DO NOT repeat text anywhere else. " +
-    "Bottom area must be completely clean. " +
+    "LETTERING REQUIREMENT — CRITICAL: Large bold Cyrillic text 'С Первомаем!' at the top center, rendered in " +
+    SOVIET_LETTERING_BASE +
+    " Bright yellow or white fill with red or gold outline. " +
+    "Placed at top center in classic postcard header style. DO NOT repeat text anywhere else. Bottom must be clean. " +
     SOVIET_NEGATIVE
   );
 }
@@ -248,25 +247,23 @@ function buildMayDayPromptMayDay() {
 function buildMayDayPromptLabor() {
   return (
     SOVIET_COMMON_BASE +
-    "LETTERING REQUIREMENT — CRITICAL: Text 'Работа работой, май — по расписанию' MUST be hand-painted " +
-    "in " + SOVIET_LETTERING_BASE +
-    "Red fill with gold or yellow outline, rough painted edge. " +
-    "Placed at top center, large and bold. DO NOT repeat text anywhere else. " +
-    "Bottom area must be completely clean. " +
+    "LETTERING REQUIREMENT — CRITICAL: Text 'Работа работой, май — по расписанию' MUST be hand-painted in " +
+    SOVIET_LETTERING_BASE +
+    " Red fill with gold or yellow outline, rough painted edge. " +
+    "Placed at top center, large and bold. DO NOT repeat text anywhere else. Bottom area must be completely clean. " +
     SOVIET_NEGATIVE
   );
 }
 
-// 4. «Товарищи-металлурги, с праздником!»
+// 4. «Товарищи-металлурги, с праздником!»  ← Исправлено имя функции
 function buildMayDayPromptMetallurgists() {
   return (
     SOVIET_COMMON_BASE +
-    "Metallurgical context: factory buildings, industrial elements and workers in the background. " +
-    "LETTERING REQUIREMENT — CRITICAL: Text 'Товарищи-металлурги, с праздником!' MUST be hand-painted " +
-    "in " + SOVIET_LETTERING_BASE +
-    "Red fill with gold or yellow outline, rough painted edge. " +
-    "Placed at top center, large and bold. DO NOT repeat text anywhere else. " +
-    "Bottom area must be completely clean. " +
+    "Metallurgical May Day context: factory buildings, industrial structures, workers in overalls in the background, spring flowers. " +
+    "LETTERING REQUIREMENT — CRITICAL: Text 'Товарищи-металлурги, с праздником!' MUST be hand-painted in " +
+    SOVIET_LETTERING_BASE +
+    " Red fill with gold or yellow outline, rough painted edge. " +
+    "Placed at top center, large and bold. DO NOT repeat text anywhere else. Bottom area must be completely clean. " +
     SOVIET_NEGATIVE
   );
 }
