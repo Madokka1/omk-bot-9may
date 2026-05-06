@@ -175,15 +175,15 @@ const TEXT_VARIANTS = {
 const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "Output format: 9:16 portrait. " +
   "NO decorative frame. NO border. Clean edges. " +
-  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 70% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (next 20% of image, from 70% to 90%): ONLY a MASSIVE Saint George ribbon in watercolor style — " +
+  "IMPORTANT COMPOSITION RULE: The image is divided into two zones. " +
+  "Zone 1 (top ~75% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (bottom ~25% of image): ONLY a MASSIVE Saint George ribbon in watercolor style — " +
   "very thick, wide, and prominent, occupying the full width and most of the lower part of the postcard. " +
   "Orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
   "The ribbon is strongly WAVY with big folds and overlaps (like a real fabric ribbon), layered ON TOP of the illustration. " +
   "Make it look like a bold foreground ribbon banner, with large curves/loops and depth, but still horizontally flowing. " +
-  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
-  "Zones 2 and 3 must contain NOTHING except what is described — no person, no flowers, no background elements, no text/lettering. " +
+  "DO NOT leave a blank white bottom area for a logo; the logo area is added later by post-processing. " +
+  "Zone 2 must contain NOTHING except the ribbon — no person, no flowers, no background elements, no text/lettering. " +
   "No watermark area. No AI signatures anywhere. ";
 
 const MAY9_OUTPUT_FORMAT_DAY =
