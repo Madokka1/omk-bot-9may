@@ -197,13 +197,16 @@ const MAY9_OUTPUT_FORMAT_DAY =
   "NO hard decorative frame. Clean composition. " +
   "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
   "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
-  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 85% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (centered at 75%, spanning from 75% to 95%): horizontal Saint George ribbon in watercolor style — " +
+  "Add neat thin SIDE BORDERS: a clean white margin on the left and right edges (~2–4% of width), like a postcard border, " +
+  "with subtle watercolor paper texture and slightly uneven soft deckle edge. " +
+  "IMPORTANT COMPOSITION RULE: One continuous watercolor postcard on watercolor paper across the FULL canvas (no separate panels). " +
+  "Zone 1 (top ~80–85% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (bottom ~15–20% of image, from ~80% to ~100%): Saint George ribbon in watercolor style — " +
   "orange and black stripes, soft brush strokes, watercolor texture. " +
   "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
+  "Place the ribbon LOWER: its lowest folds should almost touch the bottom edge (tiny margin only). " +
   "Zone 2 intentionally overlaps Zone 1 — the ribbon is layered ON TOP of the illustration. " +
-  "Zone 3 (bottom 15% of image, from 95% to 100%): completely white/empty area for logo placement. " +
+  "DO NOT reserve a blank logo footer; the logo footer is added later by post-processing. " +
   "LETTERING: large expressive hand-lettered Cyrillic brush script '9 Мая — День Победы' placed ON TOP of the ribbon, " +
   "overlapping both Zone 1 and Zone 2 freely — text extends above and below the ribbon edges. " +
   "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
@@ -215,12 +218,15 @@ const MAY9_OUTPUT_FORMAT_VICTORY =
   "NO hard decorative frame. Clean composition. " +
   "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
   "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
-  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (next 15% of image, from 75% to 90%): horizontal Saint George ribbon in watercolor style — " +
+  "Add neat thin SIDE BORDERS: a clean white margin on the left and right edges (~2–4% of width), like a postcard border, " +
+  "with subtle watercolor paper texture and slightly uneven soft deckle edge. " +
+  "IMPORTANT COMPOSITION RULE: One continuous watercolor postcard on watercolor paper across the FULL canvas (no separate panels). " +
+  "Zone 1 (top ~80–85% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (bottom ~15–20% of image, from ~80% to ~100%): Saint George ribbon in watercolor style — " +
   "orange and black stripes, soft brush strokes, watercolor texture. " +
   "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
-  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
+  "Place the ribbon LOWER: its lowest folds should almost touch the bottom edge (tiny margin only). " +
+  "DO NOT reserve a blank logo footer; the logo footer is added later by post-processing. " +
   "LETTERING: large expressive hand-lettered Cyrillic brush script 'С Днём Победы!' placed ON TOP of the ribbon, " +
   "overlapping it freely, text may extend above and below the ribbon edges — that is intentional and desired. " +
   "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
@@ -233,12 +239,15 @@ const MAY9_OUTPUT_FORMAT_MEMORY =
   "NO hard decorative frame. Clean composition. " +
   "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
   "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
-  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (next 15% of image, from 75% to 90%): horizontal Saint George ribbon in watercolor style — " +
+  "Add neat thin SIDE BORDERS: a clean white margin on the left and right edges (~2–4% of width), like a postcard border, " +
+  "with subtle watercolor paper texture and slightly uneven soft deckle edge. " +
+  "IMPORTANT COMPOSITION RULE: One continuous watercolor postcard on watercolor paper across the FULL canvas (no separate panels). " +
+  "Zone 1 (top ~80–85% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (bottom ~15–20% of image, from ~80% to ~100%): Saint George ribbon in watercolor style — " +
   "orange and black stripes, soft brush strokes, watercolor texture. " +
   "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
-  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
+  "Place the ribbon LOWER: its lowest folds should almost touch the bottom edge (tiny margin only). " +
+  "DO NOT reserve a blank logo footer; the logo footer is added later by post-processing. " +
   "LETTERING: large expressive hand-lettered Cyrillic brush script 'Помню. Горжусь.' placed ON TOP of the ribbon, " +
   "overlapping it freely, text may extend above and below the ribbon edges — that is intentional and desired. " +
   "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
