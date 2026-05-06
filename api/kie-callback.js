@@ -312,6 +312,28 @@ function guessFileNameFromMime(mimeType) {
   return "image.bin";
 }
 
+function shouldSendDocumentCopy() {
+  return String(process.env.SEND_DOCUMENT_COPY || "").trim() === "1";
+}
+
+async function sendImageToTelegram({ chatId, blob }) {
+  const fileName = guessFileNameFromMime(blob.type);
+
+  // IMPORTANT: FormData/body streams are one-shot. Build a new FormData per API call.
+  const photoForm = new FormData();
+  photoForm.append("chat_id", String(chatId));
+  photoForm.append("photo", blob, fileName);
+  await telegramApiMultipart("sendPhoto", photoForm);
+
+  if (shouldSendDocumentCopy()) {
+    const docForm = new FormData();
+    docForm.append("chat_id", String(chatId));
+    // Telegram expects "document" field for sendDocument
+    docForm.append("document", blob, fileName);
+    await telegramApiMultipart("sendDocument", docForm);
+  }
+}
+
 // Use __dirname so PM2 cwd doesn't break logo path.
 const CLIENT_LOGO_DEFAULT_PATH = path.join(__dirname, "..", "assets", "client-logo.svg");
 
@@ -498,22 +520,14 @@ module.exports = async (req, res) => {
 
       // prefer recordInfo resultUrls
       const blob = await overlayClientLogo(await kie.fetchImageAsBlob(urls[0]));
-      const fileName = guessFileNameFromMime(blob.type);
-      const form = new FormData();
-      form.append("photo", blob, fileName);
-      await telegramApiMultipart("sendPhoto", form);
-      await telegramApiMultipart("sendDocument", form);
+      await sendImageToTelegram({ chatId, blob });
       await telegramApi("sendMessage", { chat_id: chatId, text: afterSendPhotoMessage() });
 
       return sendJson(res, 200, { ok: true });
     }
 
     const blob = await overlayClientLogo(await kie.fetchImageAsBlob(resultUrl));
-    const fileName = guessFileNameFromMime(blob.type);
-    const form = new FormData();
-    form.append("chat_id", String(chatId));
-    form.append("photo", blob, fileName);
-    await telegramApiMultipart("sendPhoto", form);
+    await sendImageToTelegram({ chatId, blob });
     await telegramApi("sendMessage", { chat_id: chatId, text: afterSendPhotoMessage() });
 
     return sendJson(res, 200, { ok: true });
