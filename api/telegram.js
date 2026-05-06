@@ -143,7 +143,7 @@ function generationVariantsReplyMarkup() {
   return {
     keyboard: [
       [{ text: "Без текста" }, { text: "С Днём Победы!" }],
-      [{ text: "9 мая — День победы" }],
+      [{ text: "9 мая — День победы" }, {text: "Помню. Горжусь."}],
       [{ text: "Назад" }]
     ],
     resize_keyboard: true,
