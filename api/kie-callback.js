@@ -492,8 +492,8 @@ module.exports = async (req, res) => {
       const fileName = guessFileNameFromMime(blob.type);
       const form = new FormData();
       form.append("chat_id", String(chatId));
-      form.append("photo", blob, fileName);
-      await telegramApiMultipart("sendPhoto", form);
+      form.append("document", blob, fileName);
+      await telegramApiMultipart("sendDocument", form);
       await telegramApi("sendMessage", { chat_id: chatId, text: afterSendPhotoMessage() });
 
       return sendJson(res, 200, { ok: true });

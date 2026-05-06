@@ -175,17 +175,13 @@ const TEXT_VARIANTS = {
 const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "Output format: 9:16 portrait. " +
   "NO decorative frame. NO border. Clean edges. " +
-  "IMPORTANT COMPOSITION RULE: One continuous watercolor scene across the FULL canvas (same paper texture + background everywhere). " +
-  "No separate panels. No cut-off background. No empty white blocks (only natural watercolor paper texture is allowed). " +
-  "Zone 1 (top ~70-75% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (bottom ~25-30% of image): a MASSIVE Saint George ribbon in watercolor style — " +
-  "very thick, wide, and prominent, occupying the full width and most of the lower part of the postcard. " +
-  "Orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
-  "The ribbon is strongly WAVY with big folds and overlaps (like a real fabric ribbon), layered ON TOP of the illustration. " +
-  "Make it look like a bold foreground ribbon banner, with large curves/loops and depth, but still horizontally flowing. " +
-  "Place the ribbon LOWER: the lowest folds/loops should almost touch the bottom edge of the generated image (leave only a tiny margin). " +
-  "DO NOT reserve a blank logo footer; the logo footer is added later by post-processing. " +
-  "NO TEXT anywhere. No lettering on the ribbon. " +
+  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
+  "Zone 1 (top 90% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (next 15% of image, from 80% to 95%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
+  "orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
+  "The ribbon is FLAT and HORIZONTAL, NOT wavy, NOT curled, NOT diagonal. Fills entire width. " +
+  "Zone 3 (bottom 5% of image): completely white/empty area for logo placement. " +
+  "Zones 2 and 3 must contain NOTHING except what is described — no person, no flowers, no background elements, no text. " +
   "No watermark area. No AI signatures anywhere. ";
 
 const MAY9_OUTPUT_FORMAT_DAY =
