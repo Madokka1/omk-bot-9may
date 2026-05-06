@@ -176,11 +176,11 @@ const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "Output format: 9:16 portrait. " +
   "NO decorative frame. NO border. Clean edges. " +
   "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (next 15% of image, from 75% to 90%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
+  "Zone 1 (top 85% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (next 15% of image, from 85% to 95%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
   "orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
   "The ribbon is FLAT and HORIZONTAL, NOT wavy, NOT curled, NOT diagonal. Fills entire width. " +
-  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
+  "Zone 3 (bottom 5% of image): completely white/empty area for logo placement. " +
   "Zones 2 and 3 must contain NOTHING except what is described — no person, no flowers, no background elements, no text. " +
   "No watermark area. No AI signatures anywhere. ";
 
@@ -190,12 +190,12 @@ const MAY9_OUTPUT_FORMAT_DAY =
   "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
   "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
   "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (centered at 75%, spanning from 65% to 85%): horizontal Saint George ribbon in watercolor style — " +
+  "Zone 1 (top 85% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (centered at 75%, spanning from 75% to 95%): horizontal Saint George ribbon in watercolor style — " +
   "orange and black stripes, soft brush strokes, watercolor texture. " +
   "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
   "Zone 2 intentionally overlaps Zone 1 — the ribbon is layered ON TOP of the illustration. " +
-  "Zone 3 (bottom 15% of image, from 85% to 100%): completely white/empty area for logo placement. " +
+  "Zone 3 (bottom 15% of image, from 95% to 100%): completely white/empty area for logo placement. " +
   "LETTERING: large expressive hand-lettered Cyrillic brush script '9 Мая — День Победы' placed ON TOP of the ribbon, " +
   "overlapping both Zone 1 and Zone 2 freely — text extends above and below the ribbon edges. " +
   "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
