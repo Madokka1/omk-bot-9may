@@ -176,7 +176,7 @@ const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "Output format: 9:16 portrait. " +
   "NO decorative frame. NO border. Clean edges. " +
   "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 85% of image): main illustration with person, background, sky, doves. " +
+  "Zone 1 (top 90% of image): main illustration with person, background, sky, doves. " +
   "Zone 2 (next 15% of image, from 85% to 95%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
   "orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
   "The ribbon is FLAT and HORIZONTAL, NOT wavy, NOT curled, NOT diagonal. Fills entire width. " +
@@ -911,8 +911,8 @@ module.exports = async (req, res) => {
             chat_id: chatId,
             text:
               pending.mode === "variant_photo"
-                ? "Принял фото. Делаю открытку — пришлю, как будет готово. Примерное время ожидания: 1-2 минуты."
-                : "Принял фото. Обрабатываю — пришлю, как будет готово. Примерное время ожидания: 1-2 минуты."
+                ? "Принял фото. Делаю открытку — пришлю, как будет готово. Примерное время ожидания: 2-4 минуты."
+                : "Принял фото. Обрабатываю — пришлю, как будет готово. Примерное время ожидания: 2-4 минуты."
           });
 
           let left = null;
