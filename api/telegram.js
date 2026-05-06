@@ -177,9 +177,9 @@ const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "NO decorative frame. NO border. Clean edges. " +
   "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
   "Zone 1 (top 90% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (next 15% of image, from 85% to 95%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
+  "Zone 2 (next 15% of image, from 85% to 95%): ONLY a horizontal Saint George ribbon in watercolor style — " +
   "orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
-  "The ribbon is FLAT and HORIZONTAL, NOT wavy, NOT curled, NOT diagonal. Fills entire width. " +
+  "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
   "Zone 3 (bottom 5% of image): completely white/empty area for logo placement. " +
   "Zones 2 and 3 must contain NOTHING except what is described — no person, no flowers, no background elements, no text. " +
   "No watermark area. No AI signatures anywhere. ";
