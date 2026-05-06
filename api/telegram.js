@@ -177,6 +177,8 @@ const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "NO decorative frame. NO border. Clean edges. " +
   "IMPORTANT COMPOSITION RULE: One continuous watercolor scene across the FULL canvas (same paper texture + background everywhere). " +
   "No separate panels/zones with different background. No cut-off background. No big empty white blocks. " +
+  "CRITICAL: the BACKGROUND must continue all the way to the bottom edge (behind the ribbon). " +
+  "Even in the bottom area there must be a real scene background (pavement / crowd / Red Square continuation), not blank paper-only area. " +
   "Main illustration occupies the top ~70-75% of the image. " +
   "BOTTOM AREA: a MASSIVE Saint George ribbon in watercolor style across the full width. " +
   "Orange and black stripes, soft brush strokes, watercolor texture. " +
