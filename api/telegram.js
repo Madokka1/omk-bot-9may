@@ -174,11 +174,14 @@ const TEXT_VARIANTS = {
 
 const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "Output format: 9:16 portrait. " +
-  "NO decorative frame. NO border. Clean edges. " +
-  "IMPORTANT COMPOSITION RULE: One continuous watercolor scene across the FULL canvas (same paper texture + background everywhere). " +
-  "No separate panels/zones with different background. No cut-off background. No big empty white blocks. " +
-  "CRITICAL: the BACKGROUND must continue all the way to the bottom edge (behind the ribbon). " +
-  "Even in the bottom area there must be a real scene background (pavement / crowd / Red Square continuation), not blank paper-only area. " +
+  "NO hard decorative frame. " +
+  "Add neat thin SIDE BORDERS: a clean white margin on the left and right edges (~2–4% of width), like a postcard border, " +
+  "with subtle watercolor paper texture and slightly uneven soft deckle edge. " +
+  "No thick border, no dark outline, no ornate frame. " +
+  "IMPORTANT COMPOSITION RULE: One continuous watercolor postcard on watercolor paper across the FULL canvas. " +
+  "Same watercolor paper texture / gentle wash background everywhere (top, middle, bottom) — no cut-off background, no separate panels. " +
+  "CRITICAL: the watercolor paper background must continue all the way to the bottom edge (behind the ribbon). " +
+  "The bottom area must NOT turn into a blank empty white block; keep a soft watercolor paper/wash background there too. " +
   "Main illustration occupies the top ~70-75% of the image. " +
   "BOTTOM AREA: a MASSIVE Saint George ribbon in watercolor style across the full width. " +
   "Orange and black stripes, soft brush strokes, watercolor texture. " +
