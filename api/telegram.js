@@ -175,13 +175,16 @@ const TEXT_VARIANTS = {
 const MAY9_OUTPUT_FORMAT_NO_TEXT =
   "Output format: 9:16 portrait. " +
   "NO decorative frame. NO border. Clean edges. " +
-  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
-  "Zone 1 (top 90% of image): main illustration with person, background, sky, doves. " +
-  "Zone 2 (next 15% of image, from 80% to 95%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
-  "orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
-  "The ribbon is FLAT and HORIZONTAL, NOT wavy, NOT curled, NOT diagonal. Fills entire width. " +
-  "Zone 3 (bottom 5% of image): completely white/empty area for logo placement. " +
-  "Zones 2 and 3 must contain NOTHING except what is described — no person, no flowers, no background elements, no text. " +
+  "IMPORTANT COMPOSITION RULE: One continuous watercolor scene across the FULL canvas (same paper texture + background everywhere). " +
+  "No separate panels/zones with different background. No cut-off background. No big empty white blocks. " +
+  "Main illustration occupies the top ~70-75% of the image. " +
+  "BOTTOM AREA: a MASSIVE Saint George ribbon in watercolor style across the full width. " +
+  "Orange and black stripes, soft brush strokes, watercolor texture. " +
+  "CRITICAL: the ribbon MUST be strongly WAVY like real fabric, with large folds/loops and overlaps (3D depth). " +
+  "Not a straight band. Not a thin stripe. Not flat. " +
+  "Place the ribbon LOWER: the lowest folds should almost touch the bottom edge of the generated image (tiny margin only). " +
+  "DO NOT reserve a blank logo footer; the logo footer is added later by post-processing. " +
+  "NO TEXT anywhere (no lettering on ribbon, no captions). " +
   "No watermark area. No AI signatures anywhere. ";
 
 const MAY9_OUTPUT_FORMAT_DAY =
