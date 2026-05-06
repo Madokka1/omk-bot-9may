@@ -719,10 +719,36 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     });
   };
 
+  const submitMemory = async () => {
+    const prompt = buildMay9PromptMemory();
+    const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
+    const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
+    const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
+    const defaultInput = isNanoBanana2(model)
+      ? {
+          output_format: "png",
+          resolution: "2K",
+          aspect_ratio: "9:16",
+          image_urls: commonImages,
+          image_input: commonImages
+        }
+      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
+    return await kie.createTask({
+      model,
+      input: {
+        prompt: String(prompt || "").trim(),
+        ...defaultInput,
+        ...(extraJson || {})
+      },
+      callBackUrl
+    });
+  };
+
   const submitByVariant = {
     [TEXT_VARIANTS.NO_TEXT]: submitNoText,
     [TEXT_VARIANTS.VICTORY]: submitVictory,
-    [TEXT_VARIANTS.DAY]: submitDay
+    [TEXT_VARIANTS.DAY]: submitDay,
+    [TEXT_VARIANTS.MEMORY]: submitMemory
   };
 
   const submitFn = submitByVariant[v] || submitVictory;
