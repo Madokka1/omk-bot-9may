@@ -471,6 +471,12 @@ function getRequiredPartnerChannels() {
 }
 
 async function checkRequiredSubscriptions(userId) {
+  // ВРЕМЕННО: проверка подписок отключена.
+  // НЕ УДАЛЯТЬ. Когда нужно будет вернуть — раскомментируйте реализацию ниже.
+  void userId;
+  return { ok: true, missing: [] };
+
+  /*
   const required = getRequiredPartnerChannels();
   if (!required.length) return { ok: true, missing: [] };
 
@@ -488,6 +494,7 @@ async function checkRequiredSubscriptions(userId) {
   }
 
   return { ok: missing.length === 0, missing };
+  */
 }
 
 function partnersText() {
