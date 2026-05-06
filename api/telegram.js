@@ -628,7 +628,7 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     const defaultInput = isNanoBanana2(model)
       ? {
           // nano-banana-2 API params
-          output_format: "png",
+          output_format: "jpeg",
           resolution: "2K",
           aspect_ratio: "9:16",
           // KIE market inconsistency: send both keys
@@ -636,7 +636,7 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
           image_input: commonImages
         }
       : {
-          output_format: "png",
+          output_format: "jpeg",
           image_size: "9:16",
           image_urls: commonImages
         };
@@ -659,13 +659,13 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
     const defaultInput = isNanoBanana2(model)
       ? {
-          output_format: "png",
+          output_format: "jpeg",
           resolution: "2K",
           aspect_ratio: "9:16",
           image_urls: commonImages,
           image_input: commonImages
         }
-      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
+      : { image_urls: commonImages, image_size: "9:16", output_format: "jpeg" };
     return await kie.createTask({
       model,
       input: {
@@ -684,13 +684,13 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
     const defaultInput = isNanoBanana2(model)
       ? {
-          output_format: "png",
+          output_format: "jpeg",
           resolution: "2K",
           aspect_ratio: "9:16",
           image_urls: commonImages,
           image_input: commonImages
         }
-      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
+      : { image_urls: commonImages, image_size: "9:16", output_format: "jpeg" };
     return await kie.createTask({
       model,
       input: {

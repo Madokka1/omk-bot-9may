@@ -341,6 +341,11 @@ async function overlayClientLogo(blob) {
   const height = meta.height || 0;
   if (!width || !height) return blob;
 
+  const outFormatRaw = (process.env.OUTPUT_IMAGE_FORMAT || "jpeg").trim().toLowerCase();
+  const outFormat = outFormatRaw === "png" ? "png" : "jpeg";
+  const outQuality = Number(process.env.OUTPUT_IMAGE_QUALITY || 82);
+  const jpegQuality = Number.isFinite(outQuality) ? Math.max(40, Math.min(95, Math.round(outQuality))) : 82;
+
   // Footer + logo sizing based on real output dimensions.
   // Target: when image width ≈ 1398px -> logo ≈ 600x183 (as in Figma).
   const PAD_Y = 60;
@@ -387,10 +392,14 @@ async function overlayClientLogo(blob) {
 
   const composed = await extended
     .composite([{ input: logoBox, top: logoTop, left: logoLeft }])
-    .png()
     .toBuffer();
 
-  return new Blob([composed], { type: "image/png" });
+  const encoded =
+    outFormat === "png"
+      ? await sharp(composed).png().toBuffer()
+      : await sharp(composed).jpeg({ quality: jpegQuality, mozjpeg: true }).toBuffer();
+
+  return new Blob([encoded], { type: outFormat === "png" ? "image/png" : "image/jpeg" });
 }
 
 module.exports = async (req, res) => {
