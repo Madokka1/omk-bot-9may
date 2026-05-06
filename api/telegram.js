@@ -273,6 +273,8 @@ const MAY9_SUBJECT =
 
 const MAY9_FINISH =
   "Subtle watercolor paper texture, soft edges, light grain, gentle vintage finish. " +
+  "Background should NOT be flat/monotone: add subtle watercolor wash variations (soft sky gradient, light cloud shapes, gentle blooms/texture spots), " +
+  "keep it delicate and consistent with watercolor paper, no harsh patterns. " +
   "Strictly Victory Day theme only, no other holidays, no modern elements. ";
 
 const MAY9_FLAGS =
