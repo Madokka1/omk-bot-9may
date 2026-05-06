@@ -500,8 +500,8 @@ module.exports = async (req, res) => {
       const blob = await overlayClientLogo(await kie.fetchImageAsBlob(urls[0]));
       const fileName = guessFileNameFromMime(blob.type);
       const form = new FormData();
-      form.append("chat_id", String(chatId));
-      form.append("document", blob, fileName);
+      form.append("photo", blob, fileName);
+      await telegramApiMultipart("sendPhoto", form);
       await telegramApiMultipart("sendDocument", form);
       await telegramApi("sendMessage", { chat_id: chatId, text: afterSendPhotoMessage() });
 
