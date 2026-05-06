@@ -142,8 +142,8 @@ function mainMenuReplyMarkup() {
 function generationVariantsReplyMarkup() {
   return {
     keyboard: [
-      [{ text: "Без текста" }, { text: "С Первомаем!" }],
-      [{ text: "Работа работой, май — по расписанию" }, { text: "Товарищи-металлурги, с праздником!" }],
+      [{ text: "Без текста" }, { text: "С Днём Победы!" }],
+      [{ text: "9 мая — День победы" }],
       [{ text: "Назад" }]
     ],
     resize_keyboard: true,
@@ -163,181 +163,150 @@ function isGenerationVariant(text) {
   return Object.values(TEXT_VARIANTS).includes(String(text).trim());
 }
 
-
 const TEXT_VARIANTS = {
   NO_TEXT: "Без текста",
-  MAY_DAY: "С Первомаем!",
-  LABOR:   "Работа работой, май — по расписанию",
-  SPRING:  "Товарищи-металлурги, с праздником!",
+  VICTORY: "С Днём Победы!",
+  DAY:     "9 мая — День победы",
+  MEMORY:  "Помню. Горжусь."
 };
 
-// ====================== SOVIET MAY DAY PROMPT SYSTEM ======================
+// ====================== VICTORY DAY (MAY 9) PROMPTS ======================
 
-const CONTROLS = {
-  style_strength: 0.56,
-  identity_preservation: 0.44,
-  composition_change: 0.65,
-  context_enforcement: 0.85
-};
+const MAY9_OUTPUT_FORMAT_NO_TEXT =
+  "Output format: 9:16 portrait. " +
+  "NO decorative frame. NO border. Clean edges. " +
+  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
+  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (next 15% of image, from 75% to 90%): ONLY a flat horizontal Saint George ribbon in watercolor style — " +
+  "orange and black horizontal stripes, soft brush strokes, watercolor texture, slightly uneven painted edges. " +
+  "The ribbon is FLAT and HORIZONTAL, NOT wavy, NOT curled, NOT diagonal. Fills entire width. " +
+  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
+  "Zones 2 and 3 must contain NOTHING except what is described — no person, no flowers, no background elements, no text. " +
+  "No watermark area. No AI signatures anywhere. ";
 
-// NOTE: общая база без конкретной фразы — фраза подставляется в buildSovietPromptAllowOneText().
-const SOVIET_PROMPT_COMPACT =
-  "Transform this photo into a unified hand-painted Soviet May Day postcard (USSR 1950s–1970s, socialist realism). " +
-  // 🔴 КРИТИЧНО — единый стиль
-  "FULL repaint. Entire image must be a single cohesive painting. " +
-  "Redraw all people, faces, skin, and details in the SAME painterly style. " +
-  "No photo elements, no collage, no mixed media. NO split panels. NO diptych. NO two frames. ONLY ONE single scene in ONE frame. " +
-  // 🧍 анатомия — без артефактов
-  "Anatomy must be correct. CRITICAL: exactly two arms/hands per person, no extra arms, no extra hands, no duplicated limbs. " +
-  "Hands must have normal realistic finger count (5 fingers). No extra fingers. " +
-  // 📏 масштаб — без «великанов»
-  "Scale must be realistic. The main person must be normal human size, proportionate to the environment and other people. " +
-  "CRITICAL: no giant person, no oversized head/body, no extreme foreground scale. " +
-  // 👤 лица (без фотки, но узнаваемые)
-  "Preserve identity through painterly interpretation only. Faces must be recognizable but fully painted. " +
-  "Painted skin texture with soft brushwork, no photographic detail, no pores, no lens effects. " +
-  // 🎨 стиль
-  "Semi-realistic Soviet painting style: clean shapes, soft idealization, natural anatomy, light heroic tone. " +
-  // 🌈 цвет и свет
-  "Vintage palette: dominant reds, sky blue, warm skin tones, fresh greens. " +
-  "Bright daylight, soft shadows, optimistic mood. " +
-  // 🚩 контекст (сжатый, но точный)
-  "Clear May Day scene: red flags (plain red, no hammer and sickle), spring flowers, festive workers, light industrial background. " +
-  // 📐 композиция
-  "Final image MUST be vertical portrait (9:16). Always portrait. Never landscape. " +
-  "Tall framing, subject well integrated into the scene. " +
-  "Thin even white border on all sides. No thick frame. " +
-  // 🚫 ограничения
-  "No modern elements, no photorealism, no cartoon, no anime, no heavy stylization, no dark dramatic lighting. ";
+const MAY9_OUTPUT_FORMAT_DAY =
+  "Output format: 9:16 portrait. " +
+  "NO hard decorative frame. Clean composition. " +
+  "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
+  "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
+  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
+  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (centered at 75%, spanning from 65% to 85%): horizontal Saint George ribbon in watercolor style — " +
+  "orange and black stripes, soft brush strokes, watercolor texture. " +
+  "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
+  "Zone 2 intentionally overlaps Zone 1 — the ribbon is layered ON TOP of the illustration. " +
+  "Zone 3 (bottom 15% of image, from 85% to 100%): completely white/empty area for logo placement. " +
+  "LETTERING: large expressive hand-lettered Cyrillic brush script '9 Мая — День Победы' placed ON TOP of the ribbon, " +
+  "overlapping both Zone 1 and Zone 2 freely — text extends above and below the ribbon edges. " +
+  "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
+  "Text color: deep red or crimson fill, clean white outline/stroke around each letter, NO drop shadow, NO glow, NO dark outline. " +
+  "No watermark area. No AI signatures anywhere. ";
 
-const SOVIET_LETTERING_BASE =
-  "Hand-painted Cyrillic brush lettering, slightly uneven, with visible brush texture (NOT a computer font, NOT digital). ";
+const MAY9_OUTPUT_FORMAT_VICTORY =
+  "Output format: 9:16 portrait. " +
+  "NO hard decorative frame. Clean composition. " +
+  "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
+  "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
+  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
+  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (next 15% of image, from 75% to 90%): horizontal Saint George ribbon in watercolor style — " +
+  "orange and black stripes, soft brush strokes, watercolor texture. " +
+  "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
+  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
+  "LETTERING: large expressive hand-lettered Cyrillic brush script 'С Днём Победы!' placed ON TOP of the ribbon, " +
+  "overlapping it freely, text may extend above and below the ribbon edges — that is intentional and desired. " +
+  "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
+  "Text color: deep red or crimson fill, clean white outline/stroke around each letter, NO drop shadow, NO glow, NO dark outline. " +
+  "Style reference: classic Russian Victory Day celebration lettering, similar to vintage Soviet holiday posters. " +
+  "No watermark area. No AI signatures anywhere. ";
 
-const SOVIET_NEGATIVE =
-  "Negative: multiple texts, typography, letters, slogans, numbers, holiday greetings, new year, christmas, snow, winter, santa, gifts, " +
-  "8 march, women's day, fireworks, confetti, modern posters, logos, watermark, signature, " +
-  "photorealism, cinematic lighting, dark tones, distorted faces, caricature, anime, oversaturated colors, heavy textures, " +
-  "pasted face, face swap, photo collage, realistic skin pores, lens effects, modern makeup, 3d render, hammer and sickle, " +
-  "extra arms, extra hands, extra fingers, missing fingers, fused fingers, deformed hands, duplicated limbs, bad anatomy, " +
-  "giant, gigantic person, oversized body, oversized head, extreme scale, tiny background people. ";
+const MAY9_OUTPUT_FORMAT_MEMORY =
+  "Output format: 9:16 portrait. " +
+  "NO hard decorative frame. Clean composition. " +
+  "Edges: soft watercolor paper effect — slightly uneven, gently faded edges on all four sides, " +
+  "as if painted on watercolor paper with natural bleeding at the borders. Subtle and delicate, NOT a thick border. " +
+  "IMPORTANT COMPOSITION RULE: The image is divided into three zones. " +
+  "Zone 1 (top 75% of image): main illustration with person, background, sky, doves. " +
+  "Zone 2 (next 15% of image, from 75% to 90%): horizontal Saint George ribbon in watercolor style — " +
+  "orange and black stripes, soft brush strokes, watercolor texture. " +
+  "The ribbon is gently WAVY, like a real fabric ribbon flowing horizontally across the full width. " +
+  "Zone 3 (bottom 10% of image): completely white/empty area for logo placement. " +
+  "LETTERING: large expressive hand-lettered Cyrillic brush script 'Помню. Горжусь.' placed ON TOP of the ribbon, " +
+  "overlapping it freely, text may extend above and below the ribbon edges — that is intentional and desired. " +
+  "Flowing dynamic brush calligraphy, Soviet celebration style, bold and expressive. " +
+  "Text color: deep red or crimson fill, clean white outline/stroke around each letter, NO drop shadow, NO glow, NO dark outline. " +
+  "Style reference: classic Russian Victory Day celebration lettering, similar to vintage Soviet holiday posters. " +
+  "No watermark area. No AI signatures anywhere. ";
 
-function clamp01(x, fallback) {
-  const n = Number(x);
-  if (!Number.isFinite(n)) return fallback;
-  if (n < 0) return 0;
-  if (n > 1) return 1;
-  return n
-}
+const MAY9_REPAINT =
+  "REPAINT this photo entirely as a watercolor painted illustration. " +
+  "Do NOT paste or cut out the original face/person onto a new background. " +
+  "Fully redraw all people in the same watercolor painting style as the background. NO photo collage. NO photorealistic face pasted over illustration. ";
 
-function getPromptControls() {
-  // 0..1 — увеличивайте stylization/context, уменьшайте identity/realism
-  const stylization = clamp01(process.env.PROMPT_STYLIZATION, 0.92);
-  const realism = clamp01(process.env.PROMPT_REALISM, 0.08);
-  // 0.15 оказалось слишком низко — лицо меняется слишком сильно.
-  const identity = clamp01(process.env.PROMPT_IDENTITY, 0.55);
-  const context = clamp01(process.env.PROMPT_CONTEXT, 0.85);
-  return { stylization, realism, identity, context };
-}
+const MAY9_STYLE_BASE =
+  "Watercolor illustration style, soft brush strokes, gentle color bleeding, transparent washes, " +
+  "hand-painted feel, warm and emotional, NOT photorealistic, NOT digital render. " +
+  "Victory Day May 9th celebration, Russian patriotic theme, nostalgic and heartfelt mood. " +
+  "Visual elements: white doves in flight, Saint George ribbons (orange and black stripes), " +
+  "red carnations, spring flowers, soft golden sunlight, festive atmosphere. ";
 
-function controlsPromptText() {
-  const c = getPromptControls();
-  const repeat = (s, n) => Array.from({ length: Math.max(1, Math.min(4, n)) }, () => s).join(" ");
-  const styleEmphasis = 1 + Math.round(c.stylization * 3);
-  const contextEmphasis = 1 + Math.round(c.context * 2);
+const MAY9_SUBJECT =
+  "Preserve original identity, facial features, proportions, and likeness of all people. Maintain recognizability. No distortion. " +
+  "Slightly enhance composition to resemble a Victory Day celebration scene, warm and forward-looking, but keep original structure. ";
 
-  const hardNoPhoto =
-    c.realism <= 0.2
-      ? "CRITICAL: NO photographic look. NO realistic skin pores. NO beauty retouch. NO camera/lens effects. NO bokeh. NO glossy skin. "
-      : c.realism <= 0.4
-        ? "NO photorealism. Avoid realistic skin texture and camera/lens effects. "
-        : "";
+const MAY9_FINISH =
+  "Subtle watercolor paper texture, soft edges, light grain, gentle vintage finish. " +
+  "Strictly Victory Day theme only, no other holidays, no modern elements. ";
 
-  const strongPoster =
-    c.stylization >= 0.75
-      ? "CRITICAL: Soviet poster illustration, clearly painted, visible brushwork, simplified shapes, crisp edges. "
-      : c.stylization >= 0.5
-        ? "Illustration look, painted texture, simplified forms. "
-        : "";
+const MAY9_FLAGS =
+  "All flags in the scene must be plain solid red ONLY — " +
+  "NO hammer and sickle, NO stars, NO coat of arms, NO symbols, NO text, NO patterns on any flag. " +
+  "Just flat red fabric. ";
 
-  const identityHint =
-    c.identity >= 0.6
-      ? "CRITICAL: Keep likeness strong (still fully painted). Preserve facial features, face shape, eyes, nose, mouth proportions. "
-      : c.identity <= 0.25
-        ? "Keep recognizability. Preserve facial structure and key features (still fully painted). "
-        : "Keep recognizability balanced with style. Preserve key facial features (still fully painted). ";
+const MAY9_SCENE_NO_TEXT =
+  MAY9_FLAGS +
+  "Background: Red Square with Kremlin towers, red banners, warm golden sunset light, " +
+  "crowds with flowers and flags softly painted in background. " +
+  "Subject holding a bouquet of red carnations with Saint George ribbon tied around the bouquet IN THEIR HANDS. " +
+  "White doves flying above in the sky. " +
+  "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
+  "NO TEXT. NO captions. No typography anywhere. No English text. ";
 
-  const mayDayBoost =
-    c.context >= 0.7
-      ? repeat(
-          "May Day cues: red flags (plain), spring flowers, festive workers, light industrial background, optimistic mood.",
-          contextEmphasis
-        ) + " "
-      : "";
+const MAY9_SCENE_WITH_TEXT =
+  MAY9_FLAGS +
+  "Background: Red Square with Kremlin towers, red banners, warm golden sunset light, " +
+  "crowds with flowers and flags softly painted in background. " +
+  "Subject is holding a bouquet of red carnations tied with Saint George ribbon IN THEIR HANDS in front of them. " +
+  "NO flowers growing from behind the person. NO flowers on clothing. NO text or prints on clothing. " +
+  "White doves flying above in the sky. " +
+  "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
+  "No other text anywhere besides the single Cyrillic lettering described. No English text. ";
 
+function buildMay9CommonBase(outputFormat) {
   return (
-    `Controls(0..1): stylization=${c.stylization}, realism=${c.realism}, identity=${c.identity}, context=${c.context}. ` +
-    `Tuning: style_strength=${CONTROLS.style_strength}, identity_preservation=${CONTROLS.identity_preservation}, composition_change=${CONTROLS.composition_change}, context_enforcement=${CONTROLS.context_enforcement}. ` +
-    repeat("FULL REPAINT.", styleEmphasis) + " " +
-    strongPoster +
-    hardNoPhoto +
-    identityHint +
-    mayDayBoost
+    "Transform this photo into a Victory Day May 9th watercolor postcard illustration. " +
+    MAY9_REPAINT +
+    MAY9_STYLE_BASE +
+    MAY9_SUBJECT +
+    MAY9_FINISH +
+    String(outputFormat || "")
   );
 }
 
-function buildSovietBase(extraContext) {
-  const extra = String(extraContext || "").trim();
-  const controls = controlsPromptText();
-  const base = extra ? SOVIET_PROMPT_COMPACT + extra + " " : SOVIET_PROMPT_COMPACT;
-  return base + controls;
+function buildMay9PromptNoText() {
+  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_NO_TEXT) + MAY9_SCENE_NO_TEXT;
 }
 
-function buildSovietPromptNoText(extraContext) {
-  return (
-    buildSovietBase(extraContext) +
-    "NO TEXT. No letters, no typography anywhere. All banners and flags must be blank. " +
-    SOVIET_NEGATIVE
-  );
+function buildMay9PromptDay() {
+  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_DAY) + MAY9_SCENE_WITH_TEXT;
 }
 
-function buildSovietPromptAllowOneText(exactText, extraContext) {
-  const v = String(exactText || "").trim();
-  if (!v) return buildSovietPromptNoText(extraContext);
-  return (
-    buildSovietBase(extraContext) +
-    // 🧾 текст (контролируемый)
-    `ALLOW ONLY ONE TEXT: '${v}'. ` +
-    "Hand-painted Cyrillic brush lettering, slightly uneven, red with light outline, top center. " +
-    "CRITICAL: Place the text INSIDE the artwork/illustration area at the top, NOT on any white border/frame/margins, NOT on the bottom logo footer area. " +
-    "Do NOT put text on the white border. Do NOT place text outside the illustration. " +
-    "No other text. If text cannot be rendered clearly, render no text. " +
-    SOVIET_NEGATIVE
-  );
+function buildMay9PromptVictory() {
+  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_VICTORY) + MAY9_SCENE_WITH_TEXT;
 }
 
-// ==================== ФУНКЦИИ ====================
-
-// 1. Без текста
-function buildMayDayPromptNoText() {
-  return buildSovietPromptNoText();
-}
-
-// 2. «С Первомаем!»
-function buildMayDayPromptMayDay() {
-  return buildSovietPromptAllowOneText("С Первомаем!");
-}
-
-// 3. «Работа работой, май — по расписанию»
-function buildMayDayPromptLabor() {
-  return buildSovietPromptAllowOneText("Работа работой, май — по расписанию");
-}
-
-// 4. «Товарищи-металлурги, с праздником!»
-function buildMayDayPromptMetallurgists() {
-  return buildSovietPromptAllowOneText(
-    "Товарищи-металлурги, с праздником!",
-    "Metallurgical May Day context: industrial plant background, blast furnace silhouettes, workers in overalls, sparks/glow subtle, spring flowers and red flags."
-  );
+function buildMay9PromptMemory() {
+  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_MEMORY) + MAY9_SCENE_WITH_TEXT;
 }
 
 function isStartCommand(text) {
@@ -635,7 +604,7 @@ function isNanoBanana2(model) {
 }
 
 async function submitKieEditTask({ req, chatId, userId, fileId, variantText, creditsLeft }) {
-  const v = String(variantText || TEXT_VARIANTS.MAY_DAY).trim();
+  const v = String(variantText || TEXT_VARIANTS.VICTORY).trim();
 
   const inputUrl = signProxyUrl({ req, fileId });
   const callBackUrl = signKieCallbackUrl({ req, chatId, userId, variantText: v, creditsLeft });
@@ -644,7 +613,7 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
   }
 
   const submitNoText = async () => {
-    const prompt = buildMayDayPromptNoText();
+    const prompt = buildMay9PromptNoText();
     const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
@@ -676,8 +645,8 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     });
   };
 
-  const submitMayDay = async () => {
-    const prompt = buildMayDayPromptMayDay();
+  const submitVictory = async () => {
+    const prompt = buildMay9PromptVictory();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
     const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
@@ -701,8 +670,8 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
     });
   };
 
-  const submitLabor = async () => {
-    const prompt = buildMayDayPromptLabor();
+  const submitDay = async () => {
+    const prompt = buildMay9PromptDay();
     const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
     const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
     const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
@@ -725,40 +694,14 @@ async function submitKieEditTask({ req, chatId, userId, fileId, variantText, cre
       callBackUrl
     });
   };
-
-  const submitSpring = async () => {
-    const prompt = buildMayDayPromptMetallurgists();
-    const extraJson = parseExtraInputJson(process.env.KIE_EDIT_EXTRA_INPUT_JSON);
-    const model = (process.env.KIE_NANO_BANANA_MODEL || "google/nano-banana-edit").trim();
-    const commonImages = [String(inputUrl || "").trim()].filter(Boolean);
-    const defaultInput = isNanoBanana2(model)
-      ? {
-          output_format: "png",
-          resolution: "2K",
-          aspect_ratio: "9:16",
-          image_urls: commonImages,
-          image_input: commonImages
-        }
-      : { image_urls: commonImages, image_size: "9:16", output_format: "png" };
-    return await kie.createTask({
-      model,
-      input: {
-        prompt: String(prompt || "").trim(),
-        ...defaultInput,
-        ...(extraJson || {})
-      },
-      callBackUrl
-    });
-};
 
   const submitByVariant = {
     [TEXT_VARIANTS.NO_TEXT]: submitNoText,
-    [TEXT_VARIANTS.MAY_DAY]: submitMayDay,
-    [TEXT_VARIANTS.LABOR]: submitLabor,
-    [TEXT_VARIANTS.SPRING]: submitSpring
+    [TEXT_VARIANTS.VICTORY]: submitVictory,
+    [TEXT_VARIANTS.DAY]: submitDay
   };
 
-  const submitFn = submitByVariant[v] || submitMayDay;
+  const submitFn = submitByVariant[v] || submitVictory;
   return await submitFn();
 }
 

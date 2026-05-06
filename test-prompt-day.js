@@ -1,5 +1,4 @@
 // Формат 9:16 для 9 мая
-
 const MAY9_OUTPUT_FORMAT =
   "Output format: 9:16 portrait. " +
   "NO hard decorative frame. Clean composition. " +
@@ -19,7 +18,6 @@ const MAY9_OUTPUT_FORMAT =
   "No watermark area. No AI signatures anywhere. ";
 
 // Базовые блоки 9 мая
-
 const MAY9_REPAINT =
   "REPAINT this photo entirely as a watercolor painted illustration. " +
   "Do NOT paste or cut out the original face/person onto a new background. " +
@@ -49,7 +47,6 @@ const MAY9_COMMON_BASE =
   MAY9_OUTPUT_FORMAT;
 
 // Промпт
-
 function buildMay9Prompt() {
   return (
     MAY9_COMMON_BASE +
