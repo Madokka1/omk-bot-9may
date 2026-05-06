@@ -23,11 +23,16 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             export PATH=$PATH:/usr/bin:/usr/local/bin
+            export PROJECT_PATH=/root/omk-bot-9may
+            export PM2_NAME=may9-bot
+
             set -e
-            cd /root/omk-bot
+            cd $PROJECT_PATH
+            
             git fetch --all
             git reset --hard origin/main
+            
             npm install --production
-            npm install --production
-            pm2 restart omk-bot --update-env || pm2 start server.js --name "omk-bot"
+            
+            pm2 restart $PM2_NAME --update-env || pm2 start server.js --name "$PM2_NAME"
             pm2 save
