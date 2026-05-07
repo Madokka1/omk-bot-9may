@@ -293,12 +293,27 @@ const MAY9_BACKGROUND_VARIANTS = [
     "fresh greenery, warm light, happy people bringing flowers, plain red flags, and doves in the sky. ",
   "Background: a riverside promenade in spring, soft watercolor sky, warm sunlight, " +
     "festival crowds with flowers and plain red flags, a few white doves above, " +
-    "overall feeling: happiness, gratitude, and celebration. "
+    "overall feeling: happiness, gratitude, and celebration. ",
+  "Background: a sunlit spring courtyard with lilac blossoms and gentle watercolor sky, " +
+    "neighbors smiling and greeting each other, people holding carnations and plain red flags, " +
+    "a few white doves above, warm and cozy celebration mood. ",
+  "Background: a bright spring boulevard with vintage-style festive decorations and red banners (no symbols, no text), " +
+    "happy people walking with flowers, soft sunlight, airy watercolor atmosphere, plain red flags. ",
+  "Background: a calm spring meadow at the edge of a town, light watercolor clouds, " +
+    "a small gathering of smiling people with flowers and plain red flags, " +
+    "doves in the sky, very light and peaceful. ",
+  "Background: a classic city street with tram lines and old-style architecture silhouettes (generic, non-specific, NOT Kremlin), " +
+    "warm sunset glow, smiling crowds with bouquets and plain red flags, festive spring feeling. "
 ];
 
+let lastMay9BackgroundIndex = -1;
 function pickMay9Background() {
   // Randomize to avoid "mostly Kremlin" repetition across generations.
-  return MAY9_BACKGROUND_VARIANTS[Math.floor(Math.random() * MAY9_BACKGROUND_VARIANTS.length)];
+  if (MAY9_BACKGROUND_VARIANTS.length === 1) return MAY9_BACKGROUND_VARIANTS[0];
+  let idx = Math.floor(Math.random() * MAY9_BACKGROUND_VARIANTS.length);
+  if (idx === lastMay9BackgroundIndex) idx = (idx + 1) % MAY9_BACKGROUND_VARIANTS.length;
+  lastMay9BackgroundIndex = idx;
+  return MAY9_BACKGROUND_VARIANTS[idx];
 }
 
 function buildMay9CommonBase(outputFormat) {
