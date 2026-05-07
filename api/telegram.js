@@ -282,24 +282,24 @@ const MAY9_FLAGS =
   "NO hammer and sickle, NO stars, NO coat of arms, NO symbols, NO text, NO patterns on any flag. " +
   "Just flat red fabric. ";
 
-const MAY9_SCENE_NO_TEXT =
-  MAY9_FLAGS +
-  "Background: Red Square with Kremlin towers, red banners, warm golden sunset light, " +
-  "crowds with flowers and flags softly painted in background. " +
-  "Subject holding a bouquet of red carnations with Saint George ribbon tied around the bouquet IN THEIR HANDS. " +
-  "White doves flying above in the sky. " +
-  "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
-  "NO TEXT. NO captions. No typography anywhere. No English text. ";
+const MAY9_BACKGROUND_VARIANTS = [
+  "Background: a festive spring city park with blooming trees, warm golden sunlight, " +
+    "smiling crowds (families, seniors, veterans, children) holding flowers and plain red flags, " +
+    "softly painted in the distance, joyful holiday atmosphere. ",
+  "Background: a wide avenue during a Victory Day celebration, soft silhouettes of classic historic buildings (NOT Kremlin), " +
+    "red banners, warm sunset light, smiling people with bouquets and plain red flags, " +
+    "gentle confetti-like petals in the air (subtle, not loud). ",
+  "Background: a peaceful spring town square with a simple memorial flame/obelisk silhouette in the far background (generic, non-specific), " +
+    "fresh greenery, warm light, happy people bringing flowers, plain red flags, and doves in the sky. ",
+  "Background: a riverside promenade in spring, soft watercolor sky, warm sunlight, " +
+    "festival crowds with flowers and plain red flags, a few white doves above, " +
+    "overall feeling: happiness, gratitude, and celebration. "
+];
 
-const MAY9_SCENE_WITH_TEXT =
-  MAY9_FLAGS +
-  "Background: Red Square with Kremlin towers, red banners, warm golden sunset light, " +
-  "crowds with flowers and flags softly painted in background. " +
-  "Subject is holding a bouquet of red carnations tied with Saint George ribbon IN THEIR HANDS in front of them. " +
-  "NO flowers growing from behind the person. NO flowers on clothing. NO text or prints on clothing. " +
-  "White doves flying above in the sky. " +
-  "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
-  "No other text anywhere besides the single Cyrillic lettering described. No English text. ";
+function pickMay9Background() {
+  // Randomize to avoid "mostly Kremlin" repetition across generations.
+  return MAY9_BACKGROUND_VARIANTS[Math.floor(Math.random() * MAY9_BACKGROUND_VARIANTS.length)];
+}
 
 function buildMay9CommonBase(outputFormat) {
   return (
@@ -313,19 +313,54 @@ function buildMay9CommonBase(outputFormat) {
 }
 
 function buildMay9PromptNoText() {
-  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_NO_TEXT) + MAY9_SCENE_NO_TEXT;
+  return (
+    buildMay9CommonBase(MAY9_OUTPUT_FORMAT_NO_TEXT) +
+    MAY9_FLAGS +
+    pickMay9Background() +
+    "Subject holding a bouquet of red carnations with Saint George ribbon tied around the bouquet IN THEIR HANDS. " +
+    "White doves flying above in the sky. " +
+    "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
+    "NO TEXT. NO captions. No typography anywhere. No English text. "
+  );
 }
 
 function buildMay9PromptDay() {
-  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_DAY) + MAY9_SCENE_WITH_TEXT;
+  return (
+    buildMay9CommonBase(MAY9_OUTPUT_FORMAT_DAY) +
+    MAY9_FLAGS +
+    pickMay9Background() +
+    "Subject is holding a bouquet of red carnations tied with Saint George ribbon IN THEIR HANDS in front of them. " +
+    "NO flowers growing from behind the person. NO flowers on clothing. NO text or prints on clothing. " +
+    "White doves flying above in the sky. " +
+    "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
+    "No other text anywhere besides the single Cyrillic lettering described. No English text. "
+  );
 }
 
 function buildMay9PromptVictory() {
-  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_VICTORY) + MAY9_SCENE_WITH_TEXT;
+  return (
+    buildMay9CommonBase(MAY9_OUTPUT_FORMAT_VICTORY) +
+    MAY9_FLAGS +
+    pickMay9Background() +
+    "Subject is holding a bouquet of red carnations tied with Saint George ribbon IN THEIR HANDS in front of them. " +
+    "NO flowers growing from behind the person. NO flowers on clothing. NO text or prints on clothing. " +
+    "White doves flying above in the sky. " +
+    "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
+    "No other text anywhere besides the single Cyrillic lettering described. No English text. "
+  );
 }
 
 function buildMay9PromptMemory() {
-  return buildMay9CommonBase(MAY9_OUTPUT_FORMAT_MEMORY) + MAY9_SCENE_WITH_TEXT;
+  return (
+    buildMay9CommonBase(MAY9_OUTPUT_FORMAT_MEMORY) +
+    MAY9_FLAGS +
+    pickMay9Background() +
+    "Subject is holding a bouquet of red carnations tied with Saint George ribbon IN THEIR HANDS in front of them. " +
+    "NO flowers growing from behind the person. NO flowers on clothing. NO text or prints on clothing. " +
+    "White doves flying above in the sky. " +
+    "Bright and light color palette, airy and emotional, warm golden tones, NO dark areas, NO heavy shadows. " +
+    "No other text anywhere besides the single Cyrillic lettering described. No English text. "
+  );
 }
 
 function isStartCommand(text) {
